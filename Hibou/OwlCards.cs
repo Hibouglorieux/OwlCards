@@ -114,10 +114,9 @@ namespace OwlCards
 
 		static public void Log(string msg)
 		{
-			//#GIT_DEACTIVATE
-			//TODO Deactivate on release
+			/*
 			UnityEngine.Debug.Log(LogPrefix + msg);
-			//#GIT_DEACTIVE_END
+			*/
 		}
     }
 }
