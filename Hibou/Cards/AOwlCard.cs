@@ -12,10 +12,9 @@ namespace OwlCards.Cards
 {
 	internal abstract class AOwlCard : CustomCard
 	{
-		AssetBundle Bundle { get { return OwlCards.Bundle; } }
 		protected GameObject GetCardArt(string name)
 		{
-			return Bundle.LoadAsset<GameObject>(name);
+			return OwlCards.instance.Bundle.LoadAsset<GameObject>(name);
 		}
 
 		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)

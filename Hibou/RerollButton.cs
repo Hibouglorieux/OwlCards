@@ -14,8 +14,6 @@ namespace OwlCards
 {
 	internal class RerollButton : MonoBehaviour
 	{
-		AssetBundle Bundle { get { return OwlCards.Bundle; } }
-
 		bool bIsActive = false;
 		bool bNeedToAddUI = false;
 		int lastPickrID = -1;
@@ -82,7 +80,7 @@ namespace OwlCards
 
 		private void AddUI(int pickrID)
 		{
-			GameObject customUI = Bundle.LoadAsset<GameObject>("UI_RerollFill");
+			GameObject customUI = OwlCards.instance.Bundle.LoadAsset<GameObject>("UI_RerollFill");
 			GameObject UI_Game = GameObject.Find("UI_Game");
 
 			addedUI = Instantiate(customUI, UI_Game.transform.parent);
@@ -91,8 +89,8 @@ namespace OwlCards
 			Image fillImage = background.GetChild(0).GetComponent<Image>();
 			Text text = background.GetChild(1).GetComponent<Text>();
 
-			text.text = String.Format(OwlCards.rerollPerPlayer[pickrID].ToString("F2") + " Rerolls");
-			float rerolls = OwlCards.rerollPerPlayer[pickrID];
+			text.text = String.Format(OwlCards.instance.rerollPerPlayer[pickrID].ToString("F2") + " Rerolls");
+			float rerolls = OwlCards.instance.rerollPerPlayer[pickrID];
 
 			fillImage.fillAmount = (rerolls > 1 ? rerolls - (Mathf.Floor(rerolls)) : rerolls);
 			Image backgroundImage = background.GetComponent<Image>();
@@ -135,7 +133,7 @@ namespace OwlCards
 				AddUI(CardChoice.instance.pickrID);
 				bNeedToAddUI = false;
 			}
-			if (bIsActive && OwlCards.rerollPerPlayer[pickrID] >= 1.0f)
+			if (bIsActive && OwlCards.instance.rerollPerPlayer[pickrID] >= 1.0f)
 			{
 				PlayerActions[] watchedActions = null;
 				watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
@@ -149,7 +147,7 @@ namespace OwlCards
 						if (((OneAxisInputControl)watchedActions[i].Block).WasPressed)
 						{
 							bIsActive = false;
-							OwlCards.rerollPerPlayer[pickrID] -= 1.0f;
+							OwlCards.instance.rerollPerPlayer[pickrID] -= 1.0f;
 							lastPickrID = pickrID;
 							GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
 							CardChoice.instance.Pick(null, true);

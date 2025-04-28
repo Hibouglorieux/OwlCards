@@ -32,18 +32,17 @@ namespace OwlCards
 		public const string Version = "0.1.0"; // What version are we on (major.minor.patch)?
 
 		public const string ModInitials = "OWL";
-		static public readonly string LogPrefix = ModName + ": ";
+		private const string LogPrefix = ModName + ": ";
 
 		public static OwlCards instance {get; private set;}
 
-		public static readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("firstmodtest", typeof(OwlCards).Assembly);
+		public readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("firstmodtest", typeof(OwlCards).Assembly);
 
-		//public static ConfigEntry<float> maxValue;
-		public static ConfigEntry<float> startingRerolls;
-		public static ConfigEntry<float> rerollPointsPerRound;
-		public static ConfigEntry<float> rerollPointsPerPointWon;
+		public ConfigEntry<float> startingRerolls;
+		public ConfigEntry<float> rerollPointsPerRound;
+		public ConfigEntry<float> rerollPointsPerPointWon;
 
-		public static Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
+		public Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
 
 		void Awake()
         {
@@ -79,7 +78,6 @@ namespace OwlCards
 
 		private IEnumerator SetupPlayerResources(IGameModeHandler gm)
 		{
-			Log("GameStart called");
 			rerollPerPlayer.Clear();
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{

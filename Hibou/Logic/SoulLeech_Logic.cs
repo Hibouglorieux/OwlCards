@@ -40,8 +40,8 @@ namespace OwlCards.Logic
 				float rerollToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 3.0f;
 				rerollToSteal = Mathf.Clamp(rerollToSteal, 0.05f, maxAmountToSteal);
 
-				OwlCards.rerollPerPlayer[player.playerID] += rerollToSteal;
-				OwlCards.rerollPerPlayer[damagedPlayer.playerID] -= rerollToSteal;
+				OwlCards.instance.rerollPerPlayer[player.playerID] += rerollToSteal;
+				OwlCards.instance.rerollPerPlayer[damagedPlayer.playerID] -= rerollToSteal;
 				rerollsLeftToStealThisPoint[damagedPlayer.playerID] -= rerollToSteal;
 
 				OwlCards.Log("Stole: " + rerollToSteal + " rerolls");
