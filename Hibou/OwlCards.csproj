@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Cards\CardTemplate.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="AssetsEmbedded\firstmodtest" />
   </ItemGroup>
 
@@ -53,6 +57,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="D:\work\Unity\Projects\RoundsMod\Assets\AssetBundles\firstmodtest" Link="AssetsEmbedded\firstmodtest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Cards\CardTemplate.cs" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

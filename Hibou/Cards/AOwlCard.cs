@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace OwlCards.Cards
 {
-	internal abstract class TemplateCard : CustomCard
+	internal abstract class AOwlCard : CustomCard
 	{
 		AssetBundle Bundle { get { return OwlCards.Bundle; } }
 		protected GameObject GetCardArt(string name)
@@ -34,6 +34,7 @@ namespace OwlCards.Cards
 		{
 			return null;
 		}
+		/*
 		protected override CardInfoStat[] GetStats()
 		{
 			return new CardInfoStat[]
@@ -47,6 +48,7 @@ namespace OwlCards.Cards
 				}
 			};
 		}
+		*/
 		public override string GetModName()
 		{
 			return OwlCards.ModInitials;

@@ -12,6 +12,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Photon.Compression;
+using System;
+using System.Linq;
 
 namespace OwlCards
 {
@@ -39,8 +41,9 @@ namespace OwlCards
 		//public static ConfigEntry<float> maxValue;
 		public static ConfigEntry<float> startingRerolls;
 		public static ConfigEntry<float> rerollPointsPerRound;
-
 		public static ConfigEntry<float> rerollPointsPerPointWon;
+
+		public static Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
 
 		void Awake()
         {
@@ -59,18 +62,62 @@ namespace OwlCards
         {
 			//GameModeManager;
             CustomCard.BuildCard<Cards.Blahaj>();
+            CustomCard.BuildCard<Cards.LetheRapide>();
+            CustomCard.BuildCard<Cards.Lethe>();
+            CustomCard.BuildCard<Cards.SoulLeech>();
+            CustomCard.BuildCard<Cards.FeedMe>();
 			UnityEngine.Debug.Log(LogPrefix + "Started");
 
 			OptionMenu.CreateMenu();
 			// instantiate logic for reroll UI
 			gameObject.AddComponent<RerollButton>();
+			GameModeManager.AddHook(GameModeHooks.HookGameStart, SetupPlayerResources);
+			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, this.OnRoundStart);
 			//ButtonClicked = ButtonClickedFunction;
         }
 
+		private IEnumerator SetupPlayerResources(IGameModeHandler gm)
+		{
+			Log("GameStart called");
+			rerollPerPlayer.Clear();
+			foreach (Player player in PlayerManager.instance.players.ToArray())
+			{
+				rerollPerPlayer.Add(player.playerID, startingRerolls.Value);
+			}
+			yield break;
+		}
+		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
+		{
+			int[] winningPlayersID = gm.GetRoundWinners();
+			// passive gain
+			foreach (int playerID in rerollPerPlayer.Keys.ToArray())
+			{
+				if (!winningPlayersID.Contains(playerID))
+					rerollPerPlayer[playerID] += rerollPointsPerRound.Value;
+			}
+
+			// gain per point
+			foreach (int pointWinner in gm.GetPointWinners())
+			{
+				if (!winningPlayersID.Contains(pointWinner))
+					rerollPerPlayer[pointWinner] += rerollPointsPerPointWon.Value;
+			}
+			yield break;
+		}
+
+		void OnDestroy()
+		{
+			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, SetupPlayerResources);
+			GameModeManager.RemoveHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
+		}
+
 		static public void Log(string msg)
 		{
+			//#GIT_DEACTIVATE
+			//TODO Deactivate on release
 			UnityEngine.Debug.Log(LogPrefix + msg);
+			//#GIT_DEACTIVE_END
 		}
     }
 }
