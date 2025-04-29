@@ -92,10 +92,8 @@ namespace OwlCards
 			if (cardInfo.categories.Contains(OwlCardCategory.modCategory))
 				if (AOwlCard.conditions.ContainsKey(cardInfo.cardName))
 				{
-					bool bCardValidated = AOwlCard.conditions[cardInfo.cardName]
+					return AOwlCard.conditions[cardInfo.cardName]
 						(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
-					OwlCards.Log("Card: " + cardInfo.cardName + " isValidated: "  + bCardValidated);
-					return bCardValidated;
 				}
 			return true;
 		}

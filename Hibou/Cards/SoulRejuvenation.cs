@@ -2,16 +2,15 @@
 
 namespace OwlCards.Cards
 {
-	internal class Soul : AOwlCard
+	internal class SoulRejuvenation : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			conditions[GetTitle()] = (float soul) => { return false; };
+			statModifiers.regen = 8;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += 1;
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -21,11 +20,11 @@ namespace OwlCards.Cards
 
 		protected override string GetTitle()
 		{
-			return "Soul";
+			return "Soul Rejuvenation";
 		}
 		protected override string GetDescription()
 		{
-			return "";
+			return "What doesn't kill grows your soul";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -34,8 +33,8 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = true,
-					stat = "Soul",
-					amount = "+1",
+					stat = "Regen",
+					amount = "+8",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
 			};
@@ -43,7 +42,7 @@ namespace OwlCards.Cards
 
 		protected override GameObject GetCardArt()
 		{
-			return GetCardArt("C_Soul");
+			return GetCardArt("C_SoulRejuvenation");
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
