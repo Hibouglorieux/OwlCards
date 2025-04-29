@@ -1,39 +1,48 @@
-﻿using System.ComponentModel;
+﻿using OwlCards.Logic;
+using UnboundLib;
 
 namespace OwlCards.Cards
 {
-	[Description("FeedMe")]
 	internal class FeedMe : AOwlCard
 	{
+		public const float rerollPointsToGainPerPoint = 0.3f;
 		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
+			statModifiers.health = 1.5f;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			player.gameObject.GetOrAddComponent<FeedMe_Logic>();
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			FeedMe_Logic component = player.gameObject.GetComponent<FeedMe_Logic>();
+			if (component)
+				Destroy(component);
 			//Run when the card is removed from the player
+		}
+
+		protected override string GetTitle()
+		{
+			return "Feed Me";
 		}
 		protected override string GetDescription()
 		{
-			return "";
+			return "You learned how to scavenge bullets that hit you into rerolls.";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
 			return new CardInfoStat[]
 			{
-				/*
 				new CardInfoStat()
 				{
 					positive = true,
-					stat = "Effect",
-					amount = "No",
+					stat = "Health",
+					amount = "+50%",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
-				*/
 			};
 		}
 
@@ -51,11 +60,6 @@ namespace OwlCards.Cards
 		protected override CardThemeColor.CardThemeColorType GetTheme()
 		{
 			return CardThemeColor.CardThemeColorType.MagicPink;
-		}
-
-		protected override string GetTitle()
-		{
-			return "FeedMe";
 		}
 	}
 }

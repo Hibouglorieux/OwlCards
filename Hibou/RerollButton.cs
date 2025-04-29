@@ -144,7 +144,8 @@ namespace OwlCards
 						if (watchedActions[i] == null)
 							continue;
 
-						if (((OneAxisInputControl)watchedActions[i].Block).WasPressed)
+						PlayerAction watchedSpecificInput = watchedActions[i].Block;
+						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
 							bIsActive = false;
 							OwlCards.instance.rerollPerPlayer[pickrID] -= 1.0f;
@@ -174,6 +175,7 @@ namespace OwlCards
 			yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
 			yield return new WaitForSecondsRealtime(0.1f);
 		}
+
 		private IEnumerator OnGameStart(IGameModeHandler gm)
 		{
 			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.Last);

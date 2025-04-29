@@ -59,22 +59,31 @@ namespace OwlCards
         }
         void Start()
         {
-			//GameModeManager;
-            CustomCard.BuildCard<Cards.Blahaj>();
-            CustomCard.BuildCard<Cards.LetheRapide>();
-            CustomCard.BuildCard<Cards.Lethe>();
-            CustomCard.BuildCard<Cards.SoulLeech>();
-            CustomCard.BuildCard<Cards.FeedMe>();
-			UnityEngine.Debug.Log(LogPrefix + "Started");
+			BuildCards();
 
+			// Spawns Menu
 			OptionMenu.CreateMenu();
 			// instantiate logic for reroll UI
 			gameObject.AddComponent<RerollButton>();
+
 			GameModeManager.AddHook(GameModeHooks.HookGameStart, SetupPlayerResources);
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
-			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, this.OnRoundStart);
-			//ButtonClicked = ButtonClickedFunction;
         }
+
+		private void BuildCards()
+		{
+			// TODO what to do actually...?
+            CustomCard.BuildCard<Cards.Blahaj>();
+            CustomCard.BuildCard<Cards.LetheRapide>();
+            CustomCard.BuildCard<Cards.Lethe>();
+
+            CustomCard.BuildCard<Cards.SoulLeech>();
+
+			// TODO need to be tested
+            CustomCard.BuildCard<Cards.LastHitter>();
+            CustomCard.BuildCard<Cards.FeedMe>();
+            CustomCard.BuildCard<Cards.SoulExhaustion>();
+		}
 
 		private IEnumerator SetupPlayerResources(IGameModeHandler gm)
 		{
@@ -83,11 +92,16 @@ namespace OwlCards
 			{
 				rerollPerPlayer.Add(player.playerID, startingRerolls.Value);
 			}
+			// cheap fix for sandbox
+			if (gm.Name == "Sandbox")
+				for (int i = 0; i < 10; i++)
+					rerollPerPlayer.Add(i, startingRerolls.Value);
 			yield break;
 		}
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
 		{
 			int[] winningPlayersID = gm.GetRoundWinners();
+
 			// passive gain
 			foreach (int playerID in rerollPerPlayer.Keys.ToArray())
 			{
@@ -95,12 +109,17 @@ namespace OwlCards
 					rerollPerPlayer[playerID] += rerollPointsPerRound.Value;
 			}
 
-			// gain per point
+			// gain per point won
+			float rerollEarnedWithPoints = 0;
 			foreach (int pointWinner in gm.GetPointWinners())
 			{
 				if (!winningPlayersID.Contains(pointWinner))
+				{
 					rerollPerPlayer[pointWinner] += rerollPointsPerPointWon.Value;
+					rerollEarnedWithPoints += rerollPointsPerPointWon.Value;
+				}
 			}
+			Log("End of round total points earned with Points won: " + rerollEarnedWithPoints);
 			yield break;
 		}
 

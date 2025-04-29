@@ -36,9 +36,10 @@ namespace OwlCards.Logic
 				if (maxAmountToSteal <= 0)
 					return;
 
-				// steal some points based on damage / target maxHealF/h
-				float rerollToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 3.0f;
-				rerollToSteal = Mathf.Clamp(rerollToSteal, 0.05f, maxAmountToSteal);
+				// this might be bad, why not make it per bullet ?
+				// steal some points based on damage / target maxHealth
+				float rerollToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
+				rerollToSteal = Mathf.Min(rerollToSteal, maxAmountToSteal);
 
 				OwlCards.instance.rerollPerPlayer[player.playerID] += rerollToSteal;
 				OwlCards.instance.rerollPerPlayer[damagedPlayer.playerID] -= rerollToSteal;

@@ -1,9 +1,6 @@
-﻿using System.ComponentModel;
-using System;
-
+﻿
 namespace OwlCards.Cards
 {
-	[Description("$safeitemrootname$")]
 	internal class $safeitemrootname$: AOwlCard
 	{
 		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
@@ -56,7 +53,7 @@ namespace OwlCards.Cards
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
 		{
-			return CardThemeColor.CardThemeColorType.MagicPink;
+			return CardThemeColor.CardThemeColorType.TechWhite;
 		}
 	}
 }

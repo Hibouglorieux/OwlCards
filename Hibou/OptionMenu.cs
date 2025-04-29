@@ -34,7 +34,7 @@ namespace OwlCards
 				(float newValue) => { OwlCards.instance.rerollPointsPerPointWon.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("starting rerolls", menu, 30, 0, 5,
+			MenuHandler.CreateSlider("Starting rerolls", menu, 30, 0, 5,
 				OwlCards.instance.startingRerolls.Value,
 				(float newValue) => { OwlCards.instance.startingRerolls.Value = newValue; }, out UnityEngine.UI.Slider _);
 		}
