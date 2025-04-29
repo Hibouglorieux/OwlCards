@@ -5,7 +5,8 @@ namespace OwlCards.Cards
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			conditions[GetTitle()] = (float soul) => { return soul >= 2; };
+			conditions[cardInfo.cardName] = (float soul) => { return soul >= 2; };
+			cardInfo.allowMultiple = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

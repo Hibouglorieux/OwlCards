@@ -2,14 +2,16 @@
 
 namespace OwlCards.Cards
 {
-	internal class $safeitemrootname$: AOwlCard
+	internal class Soul : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
+			conditions[cardInfo.cardName] = (float soul) => { return false; };
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += 1;
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -19,7 +21,7 @@ namespace OwlCards.Cards
 
 		protected override string GetTitle()
 		{
-			return "$safeitemrootname$";
+			return "Soul";
 		}
 		protected override string GetDescription()
 		{
@@ -29,21 +31,19 @@ namespace OwlCards.Cards
 		{
 			return new CardInfoStat[]
 			{
-				/*
 				new CardInfoStat()
 				{
 					positive = true,
-					stat = "Effect",
-					amount = "No",
+					stat = "Soul",
+					amount = "+1",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
-				*/
 			};
 		}
 
 		protected override GameObject GetCardArt()
 		{
-			return GetCardArt("C_$safeitemrootname$");
+			return GetCardArt("C_Soul");
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{

@@ -9,6 +9,7 @@ namespace OwlCards.Cards
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			statModifiers.health = 1.5f;
+			cardInfo.allowMultiple = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -30,7 +31,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "You learned how to scavenge bullets that hit you into rerolls.";
+			return "You learned how to assimilate bullets that hit you to strengthen your soul";
 		}
 		protected override CardInfoStat[] GetStats()
 		{

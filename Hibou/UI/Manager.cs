@@ -15,8 +15,9 @@ namespace OwlCards.UI
 		public static Manager instance;
 		private GameObject canvas;
 		private GameObject soulFill;
+		private int playerSoulFillID;
 		private Dictionary<int, GameObject> soulCounters = new Dictionary<int, GameObject>();
-		private List<Action<float, float>> handlers = new List<Action<float, float>>();
+		private List<Action<float>> handlers = new List<Action<float>>();
 
 		void Awake()
 		{
@@ -27,6 +28,7 @@ namespace OwlCards.UI
 		{
 			GameModeManager.AddHook(GameModeHooks.HookGameStart, BuildUI);
 			GameModeManager.AddHook(GameModeHooks.HookGameEnd, ClearUI);
+			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, BuildUI);
 		}
 
 		void OnDestroy()
@@ -44,6 +46,7 @@ namespace OwlCards.UI
 		private IEnumerator ClearUI(IGameModeHandler handler)
 		{
 			RemoveCounters();
+			RemoveFill();
 			RemoveCanvas();
 			yield break;
 		}
@@ -61,6 +64,8 @@ namespace OwlCards.UI
 
 		public void UpdateFillUI(float soulValue)
 		{
+			if (!soulFill)
+				return;
 			Transform background = soulFill.transform.GetChild(0);
 			Image fillImage = background.GetChild(0).GetComponent<Image>();
 			Text text = background.GetChild(1).GetComponent<Text>();
@@ -102,6 +107,7 @@ namespace OwlCards.UI
 				fillImage.color = new Color(1f, 0.58f, 0f, 1f);
 			}
 		}
+
 		public void BuildFillUI(Player player)
 		{
 			//already existant
@@ -111,9 +117,10 @@ namespace OwlCards.UI
 			if (!canvas)
 				BuildCanvas();
 			soulFill = Instantiate(assetFill, canvas.transform);
-
+			playerSoulFillID = player.playerID;
 			//added UI is a Border image which itself has a Background child, which has two childs Image and text
 			UpdateFillUI(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
+			Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += UpdateFillUI;
 		}
 
 		public void BuildSoulCounters()
@@ -125,7 +132,7 @@ namespace OwlCards.UI
 			{
 				//retrieve good Y position to align with cardBar
 				GameObject CardViz = GameObject.Find("CardViz");
-				Transform Bar = CardViz.transform.GetChild((PlayerManager.instance.players.Count - 1)* 2 + 1 + i); // skip all unused Bar + add 1 to skip Pointer)
+				Transform Bar = CardViz.transform.GetChild(3 + i); // skip all unused Bar (which is only 2, LOL) + add 1 to skip Pointer)
 
 				GameObject soulCounter = OwlCards.instance.Bundle.LoadAsset<GameObject>("OC_UI_SoulCounter");
 				GameObject addedUI = Instantiate(soulCounter, canvas.transform);
@@ -133,7 +140,7 @@ namespace OwlCards.UI
 				int playerID = player.playerID;
 				soulCounters[playerID] = addedUI;
 
-				Action<float, float> handler = (x, y) => UpdateSoulCounterValue(playerID, x, y);
+				Action<float> handler = (x) => UpdateSoulCounterValue(playerID, x);
 				handlers.Add(handler);
 				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += handler;
 
@@ -148,13 +155,10 @@ namespace OwlCards.UI
 			}
 		}
 
-		public void UpdateSoulCounterValue(int playerID, float oldValue, float newValue)
+		public void UpdateSoulCounterValue(int playerID, float newValue)
 		{
-			if (oldValue != newValue)
-			{
-				Text text = soulCounters[playerID].GetComponent<Text>();
-				text.text = String.Format(newValue.ToString("F2"));
-			}
+			Text text = soulCounters[playerID].GetComponent<Text>();
+			text.text = String.Format(newValue.ToString("F2"));
 		}
 
 		public void RemoveCounters()
@@ -169,6 +173,8 @@ namespace OwlCards.UI
 		}
 		public void RemoveCanvas()
 		{
+			RemoveFill();
+			RemoveCounters();
 			if (canvas)
 				Destroy(canvas);
 			canvas = null;
@@ -178,8 +184,13 @@ namespace OwlCards.UI
 
 		public void RemoveFill()
 		{
-			if (soulFill)
-				Destroy(soulFill);
+			if (!soulFill)
+				return;
+
+			Player player = Utils.GetPlayerWithID(playerSoulFillID);
+			if (player)
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged -= UpdateFillUI;
+			Destroy(soulFill);
 			soulFill = null;
 		}
 	}

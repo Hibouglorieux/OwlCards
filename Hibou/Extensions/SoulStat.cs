@@ -10,12 +10,15 @@ namespace OwlCards.Extensions
 		private float _soul;
 		public float Soul { get { return _soul; } set
 			{
-				soulChanged?.Invoke(_soul, value);
-				_soul = value;
+				if (_soul != value)
+				{
+					_soul = value;
+					soulChanged?.Invoke(value);
+				}
 			}
 		}
 
-		public event Action<float, float> soulChanged;
+		public event Action<float> soulChanged;
 
 		public CharacterStatModifiersAdditionalData()
 		{

@@ -23,7 +23,14 @@ namespace OwlCards.Cards
 		}
 		protected GameObject GetCardArt(string name)
 		{
-			return OwlCards.instance.Bundle.LoadAsset<GameObject>(name);
+			try
+			{
+				return OwlCards.instance.Bundle.LoadAsset<GameObject>(name);
+			}
+			catch
+			{
+				return null;
+			}
 		}
 
 		protected override GameObject GetCardArt()

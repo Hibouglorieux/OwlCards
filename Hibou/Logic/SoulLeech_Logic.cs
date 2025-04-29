@@ -1,4 +1,5 @@
-﻿using OwlCards.Cards;
+﻿using ModdingUtils.RoundsEffects;
+using OwlCards.Cards;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using UnityEngine;
 
 namespace OwlCards.Logic
 {
+	// perhaps use a  instead of a DealtDamageEffect HitEffect
 	[DisallowMultipleComponent]
 	internal class SoulLeech_Logic : DealtDamageEffect
 	{
@@ -38,14 +40,14 @@ namespace OwlCards.Logic
 
 				// this might be bad, why not make it per bullet ?
 				// steal some points based on damage / target maxHealth
-				float rerollToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
-				rerollToSteal = Mathf.Min(rerollToSteal, maxAmountToSteal);
+				float soulToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
+				soulToSteal = Mathf.Min(soulToSteal, maxAmountToSteal);
 
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollToSteal;
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(damagedPlayer.data.stats).Soul -= rerollToSteal;
-				rerollsLeftToStealThisPoint[damagedPlayer.playerID] -= rerollToSteal;
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += soulToSteal;
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(damagedPlayer.data.stats).Soul -= soulToSteal;
+				rerollsLeftToStealThisPoint[damagedPlayer.playerID] -= soulToSteal;
 
-				OwlCards.Log("Stole: " + rerollToSteal + " rerolls");
+				OwlCards.Log("Stole: " + soulToSteal + " steal");
             }
         }
 

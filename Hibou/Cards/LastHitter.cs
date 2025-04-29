@@ -1,24 +1,31 @@
-﻿using System.ComponentModel;
+﻿using OwlCards.Logic;
+using System.ComponentModel;
+using UnboundLib;
 
 namespace OwlCards.Cards
 {
 	[Description("LastHitter")]
 	internal class LastHitter : AOwlCard
 	{
+		public const float soulGainedPerKill = 0.25f;
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 			gun.damage = 1.25f;
 			gun.reloadTime = 1.25f;
 			gun.ammo = -1;
+			cardInfo.allowMultiple = false;
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			// TODO add effect on onkill
+			var logic = player.gameObject.GetOrAddComponent<LastHitter_Logic>();
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			LastHitter_Logic logic = player.gameObject.GetComponent<LastHitter_Logic>();
+			if (logic)
+				Destroy(logic);
 			//Run when the card is removed from the player
 		}
 
@@ -28,7 +35,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Your ennemies will give you some rerolls when you finish them.";
+			return "Earn some souls whenever you make a kill";
 		}
 		protected override CardInfoStat[] GetStats()
 		{

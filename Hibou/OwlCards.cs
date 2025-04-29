@@ -45,6 +45,7 @@ namespace OwlCards
 
 		public ConfigEntry<float> rerollSoulCost;
 		public ConfigEntry<float> extraPickSoulCost;
+		private List<int> pointWinnersID = new List<int>();
 
 		void Awake()
         {
@@ -75,32 +76,48 @@ namespace OwlCards
 			gameObject.AddComponent<UI.Manager>();
 
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
+			GameModeManager.AddHook(GameModeHooks.HookPointEnd, TrackPointWinners);
         }
+
+		private IEnumerator TrackPointWinners(IGameModeHandler gm)
+		{
+			int[] newPointWinners = gm.GetPointWinners();
+			foreach (int newPointWinner in newPointWinners)
+				pointWinnersID.Add(newPointWinner);
+			yield break;
+		}
 
 		private bool OwlCardValidation(Player player, CardInfo cardInfo)
 		{
 			if (cardInfo.categories.Contains(OwlCardCategory.modCategory))
 				if (AOwlCard.conditions.ContainsKey(cardInfo.cardName))
-					return AOwlCard.conditions[cardInfo.cardName]
+				{
+					bool bCardValidated = AOwlCard.conditions[cardInfo.cardName]
 						(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
+					OwlCards.Log("Card: " + cardInfo.cardName + " isValidated: "  + bCardValidated);
+					return bCardValidated;
+				}
 			return true;
 		}
 		private void BuildCards()
 		{
 			// TODO what to do actually...?
-            CustomCard.BuildCard<Cards.Blahaj>();
-            CustomCard.BuildCard<Cards.LetheRapide>();
-            CustomCard.BuildCard<Cards.Lethe>();
+			//CustomCard.BuildCard<Cards.Blahaj>();
+			//CustomCard.BuildCard<Cards.LetheRapide>();
+			//CustomCard.BuildCard<Cards.Lethe>();
 
+			// Debug/Test
+			CustomCard.BuildCard<Cards.Soul>();
+			CustomCard.BuildCard<Cards.Soulless>();
+
+			// Should be ok
             CustomCard.BuildCard<Cards.SoulLeech>();
+            CustomCard.BuildCard<Cards.FeedMe>();
+            CustomCard.BuildCard<Cards.FunKiller>();
+            CustomCard.BuildCard<Cards.LastHitter>();
 
 			// TODO need to be tested
-            CustomCard.BuildCard<Cards.FeedMe>();
             CustomCard.BuildCard<Cards.SoulExhaustion>();
-            CustomCard.BuildCard<Cards.FunKiller>();
-
-			//
-            CustomCard.BuildCard<Cards.LastHitter>();
 		}
 
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
@@ -116,7 +133,7 @@ namespace OwlCards
 
 			// gain per point won
 			float rerollEarnedWithPoints = 0;
-			foreach (int pointWinner in gm.GetPointWinners())
+			foreach (int pointWinner in pointWinnersID)
 			{
 				if (!winningPlayersID.Contains(pointWinner))
 				{
@@ -125,6 +142,7 @@ namespace OwlCards
 					rerollEarnedWithPoints += rerollPointsPerPointWon.Value;
 				}
 			}
+			pointWinnersID.Clear();
 			Log("End of round total points earned with Points won: " + rerollEarnedWithPoints);
 			yield break;
 		}
@@ -132,6 +150,7 @@ namespace OwlCards
 		void OnDestroy()
 		{
 			GameModeManager.RemoveHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
+			GameModeManager.RemoveHook(GameModeHooks.HookPointEnd, TrackPointWinners);
 		}
 
 		static public void Log(string msg)

@@ -39,7 +39,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Your gun now drains your opponent soul";
+			return "Your bullets eat the soul of your foes, making yours grow in the process";
 		}
 		protected override CardInfoStat[] GetStats()
 		{

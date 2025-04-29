@@ -1,29 +1,36 @@
-﻿using System.ComponentModel;
+﻿using OwlCards.Logic;
+using System.ComponentModel;
+using UnboundLib;
 using UnityEngine;
 
 namespace OwlCards.Cards
 {
-	[Description("SoulExhaustion")]
+    [Description("SoulExhaustion")]
 	internal class SoulExhaustion : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			gun.projectileSpeed = 1.3f;
 			gun.attackSpeed = 1.25f;
+			cardInfo.allowMultiple = false;
 
-			//TODO tmp
-
-			gun.slow = 0.25f;
-			//Mathf.Lerp(0.25f, 1.0f, insertratio);
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
+		public static float GetSlowValue(float soulValue)
+		{
+			return Mathf.Lerp(1.0f, 0.20f, (soulValue - 1.5f) / 5f);
+		}
+
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			//TODO
+			player.gameObject.GetOrAddComponent<SoulExhaustion_Logic>();
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			SoulExhaustion_Logic logic = player.gameObject.GetComponent<SoulExhaustion_Logic>();
+			if (logic)
+				Destroy(logic);
 			//Run when the card is removed from the player
 		}
 
