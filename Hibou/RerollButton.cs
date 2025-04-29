@@ -17,44 +17,27 @@ namespace OwlCards
 		bool bIsActive = false;
 		bool bNeedToAddUI = false;
 		int lastPickrID = -1;
-		private GameObject addedUI;
 
 
 		void Start()
 		{
-			OwlCards.Log("RerollButton created and gameStartHook registered");
-			//GameModeManager.AddHook(GameModeHooks.HookGameStart, OnGameStart);
-			//GameModeManager.AddHook(GameModeHooks.HookGameEnd, OnGameEnd);
-
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.VeryLow);
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd, GameModeHooks.Priority.VeryHigh);
-			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
-
         }
-
-
-		private IEnumerator OnPickStart(IGameModeHandler gm)
+		void OnDestroy()
 		{
-			OwlCards.Log("PICK start called !");
-			yield break;
+			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
+			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
 		}
+
 		IEnumerator OnPlayerPickStart(IGameModeHandler gm)
 		{
 			OwlCards.Log("PlayerPickStart called !");
-			/*
-			//UnityEngine.Debug.Log(LogPrefix + gm.GameMode.Name);
-			GameObject UI_Game = GameObject.Find("UI_Game");
-			GameObject canvas = UI_Game.transform.GetChild(0).gameObject;
-			GameObject cardChoice = GameObject.Find("Card Choice");
 
-			//GameObject buttonAdded = MenuHandler.CreateButton("Reroll", Canvas, ButtonClicked);
-			GameObject customButton = Bundle.LoadAsset<GameObject>("C_RerollButton");
-			GameObject buttonAdded = Instantiate(customButton, canvas.transform);
-			buttonAdded.transform.position = new Vector3(0, -18, buttonAdded.transform.position.z);
-			*/
-
-
+			// delay UI creation as we don't know who is the pickrID yet
 			bNeedToAddUI = true;
+
+			// Bugs if PickCards() is called before full instantiation, delay as a cheap fix
 			StartCoroutine(SetInputAsActive(1.0f)); // TODO adapt this to the amount of cards
 
 			yield break;
@@ -72,56 +55,8 @@ namespace OwlCards
 			OwlCards.Log("PlayerPickEnd called !");
 
 			bIsActive = false;
-			Destroy(addedUI);
-			addedUI = null;
-
+			UI.Manager.instance.RemoveFill();
 			yield break;
-		}
-
-		private void AddUI(int pickrID)
-		{
-			GameObject customUI = OwlCards.instance.Bundle.LoadAsset<GameObject>("UI_RerollFill");
-			GameObject UI_Game = GameObject.Find("UI_Game");
-
-			addedUI = Instantiate(customUI, UI_Game.transform.parent);
-			//added UI is a canvas which has a Border Child, which itself has a Background child, which has two childs Image and text
-			Transform background = addedUI.transform.GetChild(0).GetChild(0);
-			Image fillImage = background.GetChild(0).GetComponent<Image>();
-			Text text = background.GetChild(1).GetComponent<Text>();
-
-			Player player = Utils.GetPlayerWithID(pickrID);
-			text.text = String.Format(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul.ToString("F2") + " Rerolls");
-			float rerolls = Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul;
-
-			fillImage.fillAmount = (rerolls > 1 ? rerolls - (Mathf.Floor(rerolls)) : rerolls);
-			Image backgroundImage = background.GetComponent<Image>();
-			if (rerolls < 0)
-			{
-				fillImage.fillOrigin = 1; // should be right
-				fillImage.color = Color.red;
-				fillImage.fillAmount = Mathf.Clamp(Mathf.Abs(rerolls), 0, 1);
-			}
-			if (rerolls > 1)
-			{
-				backgroundImage.color = fillImage.color;
-				//fillImage.color = new Color(0f, 1f, 0.38f, 1f);
-				fillImage.color = new Color(0f, 1f, 0.82f, 1f);
-			}
-			if (rerolls > 2)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(0f, 0.27f, 1f, 1f);
-			}
-			if (rerolls > 3)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(0.63f, 0f, 1f, 1f);
-			}
-			if (rerolls > 4)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(1f, 0.58f, 0f, 1f);
-			}
 		}
 
 		void Update()
@@ -131,10 +66,10 @@ namespace OwlCards
 				return;
 			if (bNeedToAddUI)
 			{
-				AddUI(CardChoice.instance.pickrID);
+				UI.Manager.instance.BuildFillUI(Utils.GetPlayerWithID(CardChoice.instance.pickrID));
 				bNeedToAddUI = false;
 			}
-			if (bIsActive && Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).soul >= 1.0f)
+			if (bIsActive && Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul >= 1.0f)
 			{
 				PlayerActions[] watchedActions = null;
 				watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
@@ -149,7 +84,7 @@ namespace OwlCards
 						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
 							bIsActive = false;
-							Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).soul -= 1.0f;
+							Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= 1.0f;
 							lastPickrID = pickrID;
 							GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
 							CardChoice.instance.Pick(null, true);
@@ -175,27 +110,6 @@ namespace OwlCards
 			yield return new WaitForSecondsRealtime(0.1f);
 			yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
 			yield return new WaitForSecondsRealtime(0.1f);
-		}
-
-		private IEnumerator OnGameStart(IGameModeHandler gm)
-		{
-			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.Last);
-			//GameModeManager.AddHook(GameModeHooks.HookPickStart, OnPickStart);
-			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
-			yield break;
-		}
-
-		private IEnumerator OnGameEnd(IGameModeHandler gm)
-		{
-			//GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
-			//GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
-			yield break;
-		}
-
-		void OnDestroy()
-		{
-			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, OnGameStart);
-			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, OnGameEnd);
 		}
 	}
 }

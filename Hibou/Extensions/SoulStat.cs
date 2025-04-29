@@ -7,11 +7,19 @@ namespace OwlCards.Extensions
 	[Serializable]
 	public class CharacterStatModifiersAdditionalData
 	{
-		public float soul;
+		private float _soul;
+		public float Soul { get { return _soul; } set
+			{
+				soulChanged?.Invoke(_soul, value);
+				_soul = value;
+			}
+		}
+
+		public event Action<float, float> soulChanged;
 
 		public CharacterStatModifiersAdditionalData()
 		{
-			soul = OwlCards.instance.startingRerolls.Value;
+			Soul = OwlCards.instance.startingRerolls.Value;
 		}
 	}
 
@@ -40,7 +48,7 @@ namespace OwlCards.Extensions
 		{
 			private static void Prefix(CharacterStatModifiers __instance)
 			{
-				__instance.GetAdditionalData().soul = OwlCards.instance.startingRerolls.Value;
+				__instance.GetAdditionalData().Soul = OwlCards.instance.startingRerolls.Value;
 			}
 		}
 }

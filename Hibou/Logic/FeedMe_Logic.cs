@@ -32,7 +32,7 @@ namespace OwlCards.Logic
 				float rerollEarned = damage.magnitude / 1000.0f;
 				rerollEarned = Mathf.Min(rerollLeftToGainThisPoint, rerollEarned);
 
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul += rerollEarned;
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollEarned;
 				rerollLeftToGainThisPoint -= rerollEarned;
 			}
 		}

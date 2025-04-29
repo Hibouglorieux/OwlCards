@@ -63,10 +63,11 @@ namespace OwlCards
 
 			// Spawns Menu
 			OptionMenu.CreateMenu();
-			// instantiate logic for reroll UI
-			gameObject.AddComponent<RerollButton>();
 
-			GameModeManager.AddHook(GameModeHooks.HookGameStart, SetupPlayerResources);
+			// spawn specialized component
+			gameObject.AddComponent<RerollButton>();
+			gameObject.AddComponent<UI.Manager>();
+
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
         }
 
@@ -85,22 +86,6 @@ namespace OwlCards
             CustomCard.BuildCard<Cards.SoulExhaustion>();
 		}
 
-		private IEnumerator SetupPlayerResources(IGameModeHandler gm)
-		{
-			/*
-			foreach (Player player in PlayerManager.instance.players.ToArray())
-			{
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).
-				rerollPerPlayer.Add(player.playerID, startingRerolls.Value);
-			}
-			// cheap fix for sandbox
-			if (gm.Name == "Sandbox")
-				for (int i = 0; i < 10; i++)
-					rerollPerPlayer.Add(i, startingRerolls.Value);
-			*/
-			yield break;
-		}
-
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
 		{
 			int[] winningPlayersID = gm.GetRoundWinners();
@@ -109,7 +94,7 @@ namespace OwlCards
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
 				if (!winningPlayersID.Contains(player.playerID))
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul += rerollPointsPerRound.Value;
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollPointsPerRound.Value;
 			}
 
 			// gain per point won
@@ -119,7 +104,7 @@ namespace OwlCards
 				if (!winningPlayersID.Contains(pointWinner))
 				{
 					Player player = Utils.GetPlayerWithID(pointWinner);
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul += rerollPointsPerPointWon.Value;
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollPointsPerPointWon.Value;
 					rerollEarnedWithPoints += rerollPointsPerPointWon.Value;
 				}
 			}
@@ -129,7 +114,6 @@ namespace OwlCards
 
 		void OnDestroy()
 		{
-			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, SetupPlayerResources);
 			GameModeManager.RemoveHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 		}
 
