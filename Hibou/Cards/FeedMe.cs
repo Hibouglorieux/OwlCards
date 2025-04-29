@@ -6,7 +6,7 @@ namespace OwlCards.Cards
 	internal class FeedMe : AOwlCard
 	{
 		public const float rerollPointsToGainPerPoint = 0.3f;
-		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
+		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			statModifiers.health = 1.5f;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`

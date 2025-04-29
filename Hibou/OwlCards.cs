@@ -14,6 +14,7 @@ using UnityEngine.SceneManagement;
 using Photon.Compression;
 using System;
 using System.Linq;
+using OwlCards.Cards;
 
 namespace OwlCards
 {
@@ -38,19 +39,23 @@ namespace OwlCards
 
 		public readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("firstmodtest", typeof(OwlCards).Assembly);
 
-		public ConfigEntry<float> startingRerolls;
-		public ConfigEntry<float> rerollPointsPerRound;
+		public ConfigEntry<float> soulOnGameStart;
+		public ConfigEntry<float> soulGainedPerRound;
 		public ConfigEntry<float> rerollPointsPerPointWon;
 
-		//public Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
+		public ConfigEntry<float> rerollSoulCost;
+		public ConfigEntry<float> extraPickSoulCost;
 
 		void Awake()
         {
 			instance = this;
 
-			rerollPointsPerRound = Config.Bind(ModName, nameof(rerollPointsPerRound), 0.5f, "How much reroll resource is earned passively each round");
-			rerollPointsPerPointWon = Config.Bind(ModName, nameof(rerollPointsPerPointWon), 0.25f, "How much reroll resource is earned passively each round");
-			startingRerolls = Config.Bind(ModName, nameof(startingRerolls), 1.0f, "How many rerolls you have when a game starts");
+			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
+			rerollPointsPerPointWon = Config.Bind(ModName, nameof(rerollPointsPerPointWon), 0.25f, "How much soul resource is earned passively each round");
+			soulOnGameStart = Config.Bind(ModName, nameof(soulOnGameStart), 1.0f, "How much soul you have when a game starts");
+
+			rerollSoulCost = Config.Bind(ModName, nameof(rerollSoulCost), 1.0f, "how much soul does it cost to reroll");
+			extraPickSoulCost = Config.Bind(ModName, nameof(extraPickSoulCost), 3.0f, "how much soul does it cost to do an extra pick");
 
             // Use this to call any harmony patch files your mod may have
             var harmony = new Harmony(ModId);
@@ -61,6 +66,7 @@ namespace OwlCards
         {
 			BuildCards();
 
+			ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(OwlCardValidation);
 			// Spawns Menu
 			OptionMenu.CreateMenu();
 
@@ -71,6 +77,14 @@ namespace OwlCards
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
         }
 
+		private bool OwlCardValidation(Player player, CardInfo cardInfo)
+		{
+			if (cardInfo.categories.Contains(OwlCardCategory.modCategory))
+				if (AOwlCard.conditions.ContainsKey(cardInfo.cardName))
+					return AOwlCard.conditions[cardInfo.cardName]
+						(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
+			return true;
+		}
 		private void BuildCards()
 		{
 			// TODO what to do actually...?
@@ -81,9 +95,12 @@ namespace OwlCards
             CustomCard.BuildCard<Cards.SoulLeech>();
 
 			// TODO need to be tested
-            CustomCard.BuildCard<Cards.LastHitter>();
             CustomCard.BuildCard<Cards.FeedMe>();
             CustomCard.BuildCard<Cards.SoulExhaustion>();
+            CustomCard.BuildCard<Cards.FunKiller>();
+
+			//
+            CustomCard.BuildCard<Cards.LastHitter>();
 		}
 
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
@@ -94,7 +111,7 @@ namespace OwlCards
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
 				if (!winningPlayersID.Contains(player.playerID))
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollPointsPerRound.Value;
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += soulGainedPerRound.Value;
 			}
 
 			// gain per point won

@@ -8,7 +8,7 @@ namespace OwlCards.Cards
 	{
 		public const float rerollLeeched = 0.1f;
 		public const float maxLeechPerRoundPerPlayer = 0.15f;
-		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
+		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 			statModifiers.lifeSteal = 0.2f;

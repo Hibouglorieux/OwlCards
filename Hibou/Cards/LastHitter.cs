@@ -5,7 +5,7 @@ namespace OwlCards.Cards
 	[Description("LastHitter")]
 	internal class LastHitter : AOwlCard
 	{
-		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
+		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 			gun.damage = 1.25f;

@@ -19,7 +19,7 @@ namespace OwlCards.Extensions
 
 		public CharacterStatModifiersAdditionalData()
 		{
-			Soul = OwlCards.instance.startingRerolls.Value;
+			Soul = OwlCards.instance.soulOnGameStart.Value;
 		}
 	}
 
@@ -48,7 +48,7 @@ namespace OwlCards.Extensions
 		{
 			private static void Prefix(CharacterStatModifiers __instance)
 			{
-				__instance.GetAdditionalData().Soul = OwlCards.instance.startingRerolls.Value;
+				__instance.GetAdditionalData().Soul = OwlCards.instance.soulOnGameStart.Value;
 			}
 		}
 }

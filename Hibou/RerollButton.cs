@@ -9,21 +9,24 @@ using UnityEngine.Events;
 using System.Linq;
 using InControl;
 using UnityEngine.UI;
+using HarmonyLib;
 
 namespace OwlCards
 {
 	internal class RerollButton : MonoBehaviour
 	{
-		bool bIsActive = false;
+		bool bIsWatchingForInput = false;
 		bool bNeedToAddUI = false;
 		int lastPickrID = -1;
+		static public RerollButton instance = null;
 
 
 		void Start()
 		{
+			instance = this;
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.VeryLow);
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd, GameModeHooks.Priority.VeryHigh);
-        }
+		}
 		void OnDestroy()
 		{
 			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
@@ -46,7 +49,7 @@ namespace OwlCards
 		IEnumerator SetInputAsActive(float delay)
 		{
 			yield return new WaitForSeconds(delay);
-			bIsActive = true;
+			bIsWatchingForInput = true;
 			yield break;
 		}
 
@@ -54,7 +57,7 @@ namespace OwlCards
 		{
 			OwlCards.Log("PlayerPickEnd called !");
 
-			bIsActive = false;
+			bIsWatchingForInput = false;
 			UI.Manager.instance.RemoveFill();
 			yield break;
 		}
@@ -69,7 +72,8 @@ namespace OwlCards
 				UI.Manager.instance.BuildFillUI(Utils.GetPlayerWithID(CardChoice.instance.pickrID));
 				bNeedToAddUI = false;
 			}
-			if (bIsActive && Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul >= 1.0f)
+			float currentSoul = Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
+			if (bIsWatchingForInput && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
 			{
 				PlayerActions[] watchedActions = null;
 				watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
@@ -83,11 +87,21 @@ namespace OwlCards
 						PlayerAction watchedSpecificInput = watchedActions[i].Block;
 						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
-							bIsActive = false;
-							Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= 1.0f;
-							lastPickrID = pickrID;
-							GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
-							CardChoice.instance.Pick(null, true);
+							bIsWatchingForInput = false;
+							RerollCurrentCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
+							break;
+						}
+						if (((OneAxisInputControl)(watchedActions[i].Fire)).WasPressed && currentSoul > OwlCards.instance.extraPickSoulCost.Value)
+						{
+							bIsWatchingForInput = false;
+
+							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
+							int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
+
+							var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
+							List<GameObject> spawnedCards = listRefField(CardChoice.instance);
+
+							RerollCurrentCards(pickrID, OwlCards.instance.extraPickSoulCost.Value, spawnedCards[selectedCardIndex]);
 							break;
 						}
 						/* the method is private and i can't deselect it for some reason
@@ -100,9 +114,18 @@ namespace OwlCards
 				}
 			}
 		}
+
+		public void RerollCurrentCards(int pickrID, float soulUsed, GameObject cardToPick = null, bool bClearCards = true)
+		{
+			bIsWatchingForInput = false;
+			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
+			lastPickrID = pickrID;
+			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
+			CardChoice.instance.Pick(cardToPick, bClearCards);
+		}
+
 		private IEnumerator Reroll(IGameModeHandler gm)
 		{
-
 			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, Reroll);
 			yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
 			CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == lastPickrID).First(), true);

@@ -6,7 +6,7 @@ namespace OwlCards.Cards
 	[Description("SoulExhaustion")]
 	internal class SoulExhaustion : AOwlCard
 	{
-		public override void SetupCard(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
+		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			gun.projectileSpeed = 1.3f;
 			gun.attackSpeed = 1.25f;

@@ -59,6 +59,49 @@ namespace OwlCards.UI
 
 		}
 
+		public void UpdateFillUI(float soulValue)
+		{
+			Transform background = soulFill.transform.GetChild(0);
+			Image fillImage = background.GetChild(0).GetComponent<Image>();
+			Text text = background.GetChild(1).GetComponent<Text>();
+
+			text.text = String.Format(soulValue.ToString("F2") + " Soul");
+			fillImage.fillAmount = (soulValue > 1 ? soulValue - (Mathf.Floor(soulValue)) : soulValue);
+
+			Image backgroundImage = background.GetComponent<Image>();
+			backgroundImage.color = Color.white;
+			fillImage.fillOrigin = 0; // left
+			if (soulValue < 0)
+			{
+				fillImage.fillOrigin = 1; // right
+				fillImage.color = Color.red;
+				fillImage.fillAmount = Mathf.Clamp(Mathf.Abs(soulValue), 0, 1);
+			}
+			if (soulValue > 0)
+			{
+				fillImage.color = new Color(0f, 1f, 0.38f, 1f);
+			}
+			if (soulValue > 1)
+			{
+				backgroundImage.color = fillImage.color;
+				fillImage.color = new Color(0f, 1f, 0.82f, 1f);
+			}
+			if (soulValue > 2)
+			{
+				backgroundImage.color = fillImage.color;
+				fillImage.color = new Color(0f, 0.27f, 1f, 1f);
+			}
+			if (soulValue > 3)
+			{
+				backgroundImage.color = fillImage.color;
+				fillImage.color = new Color(0.63f, 0f, 1f, 1f);
+			}
+			if (soulValue > 4)
+			{
+				backgroundImage.color = fillImage.color;
+				fillImage.color = new Color(1f, 0.58f, 0f, 1f);
+			}
+		}
 		public void BuildFillUI(Player player)
 		{
 			//already existant
@@ -70,42 +113,7 @@ namespace OwlCards.UI
 			soulFill = Instantiate(assetFill, canvas.transform);
 
 			//added UI is a Border image which itself has a Background child, which has two childs Image and text
-			Transform background = soulFill.transform.GetChild(0);
-			Image fillImage = background.GetChild(0).GetComponent<Image>();
-			Text text = background.GetChild(1).GetComponent<Text>();
-
-			text.text = String.Format(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul.ToString("F2") + " Rerolls");
-			float rerolls = Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul;
-
-			fillImage.fillAmount = (rerolls > 1 ? rerolls - (Mathf.Floor(rerolls)) : rerolls);
-			Image backgroundImage = background.GetComponent<Image>();
-			if (rerolls < 0)
-			{
-				fillImage.fillOrigin = 1; // should be right
-				fillImage.color = Color.red;
-				fillImage.fillAmount = Mathf.Clamp(Mathf.Abs(rerolls), 0, 1);
-			}
-			if (rerolls > 1)
-			{
-				backgroundImage.color = fillImage.color;
-				//fillImage.color = new Color(0f, 1f, 0.38f, 1f);
-				fillImage.color = new Color(0f, 1f, 0.82f, 1f);
-			}
-			if (rerolls > 2)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(0f, 0.27f, 1f, 1f);
-			}
-			if (rerolls > 3)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(0.63f, 0f, 1f, 1f);
-			}
-			if (rerolls > 4)
-			{
-				backgroundImage.color = fillImage.color;
-				fillImage.color = new Color(1f, 0.58f, 0f, 1f);
-			}
+			UpdateFillUI(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
 		}
 
 		public void BuildSoulCounters()
