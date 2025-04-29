@@ -131,15 +131,19 @@ namespace OwlCards.UI
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
 				//retrieve good Y position to align with cardBar
-				GameObject CardViz = GameObject.Find("CardViz");
-				Transform Bar = CardViz.transform.GetChild(3 + i); // skip all unused Bar (which is only 2, LOL) + add 1 to skip Pointer)
 
+				GameObject CardViz = GameObject.Find("CardViz");
+				Transform Bar = CardViz.transform.GetChild(3 + i); // skip all unused Bar (which is only 2, for some reason) + add 1 to skip Pointer gameobject)
+
+				//spawn my UI
 				GameObject soulCounter = OwlCards.instance.Bundle.LoadAsset<GameObject>("OC_UI_SoulCounter");
 				GameObject addedUI = Instantiate(soulCounter, canvas.transform);
 
+				//keep track for deletion
 				int playerID = player.playerID;
 				soulCounters[playerID] = addedUI;
 
+				//keep track of soulChanged to update in its value in real time, store it to be able to delete it once the game is over
 				Action<float> handler = (x) => UpdateSoulCounterValue(playerID, x);
 				handlers.Add(handler);
 				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += handler;
@@ -147,9 +151,11 @@ namespace OwlCards.UI
 				Text text = addedUI.GetComponent<Text>();
 				text.text = String.Format(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul.ToString("F2"));
 
+				// set position
+				// /!\ this is currently bugged for other resolutions than 2k for some reason i don't get
 				Vector3 newPos = addedUI.transform.localPosition;
 				Canvas gameCanvas = CardViz.transform.parent.GetComponent<Canvas>();
-				newPos.y = Bar.localPosition.y * gameCanvas.scaleFactor;
+				newPos.y = Bar.localPosition.y * gameCanvas.scaleFactor / canvas.GetComponent<Canvas>().scaleFactor;
 				addedUI.transform.localPosition = newPos;
 				i++;
 			}
