@@ -89,8 +89,9 @@ namespace OwlCards
 			Image fillImage = background.GetChild(0).GetComponent<Image>();
 			Text text = background.GetChild(1).GetComponent<Text>();
 
-			text.text = String.Format(OwlCards.instance.rerollPerPlayer[pickrID].ToString("F2") + " Rerolls");
-			float rerolls = OwlCards.instance.rerollPerPlayer[pickrID];
+			Player player = Utils.GetPlayerWithID(pickrID);
+			text.text = String.Format(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul.ToString("F2") + " Rerolls");
+			float rerolls = Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul;
 
 			fillImage.fillAmount = (rerolls > 1 ? rerolls - (Mathf.Floor(rerolls)) : rerolls);
 			Image backgroundImage = background.GetComponent<Image>();
@@ -133,7 +134,7 @@ namespace OwlCards
 				AddUI(CardChoice.instance.pickrID);
 				bNeedToAddUI = false;
 			}
-			if (bIsActive && OwlCards.instance.rerollPerPlayer[pickrID] >= 1.0f)
+			if (bIsActive && Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).soul >= 1.0f)
 			{
 				PlayerActions[] watchedActions = null;
 				watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
@@ -148,7 +149,7 @@ namespace OwlCards
 						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
 							bIsActive = false;
-							OwlCards.instance.rerollPerPlayer[pickrID] -= 1.0f;
+							Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).soul -= 1.0f;
 							lastPickrID = pickrID;
 							GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
 							CardChoice.instance.Pick(null, true);

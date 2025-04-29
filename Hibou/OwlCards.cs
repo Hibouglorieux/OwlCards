@@ -42,7 +42,7 @@ namespace OwlCards
 		public ConfigEntry<float> rerollPointsPerRound;
 		public ConfigEntry<float> rerollPointsPerPointWon;
 
-		public Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
+		//public Dictionary<int, float> rerollPerPlayer = new Dictionary<int, float>();
 
 		void Awake()
         {
@@ -87,26 +87,29 @@ namespace OwlCards
 
 		private IEnumerator SetupPlayerResources(IGameModeHandler gm)
 		{
-			rerollPerPlayer.Clear();
+			/*
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).
 				rerollPerPlayer.Add(player.playerID, startingRerolls.Value);
 			}
 			// cheap fix for sandbox
 			if (gm.Name == "Sandbox")
 				for (int i = 0; i < 10; i++)
 					rerollPerPlayer.Add(i, startingRerolls.Value);
+			*/
 			yield break;
 		}
+
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
 		{
 			int[] winningPlayersID = gm.GetRoundWinners();
 
 			// passive gain
-			foreach (int playerID in rerollPerPlayer.Keys.ToArray())
+			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
-				if (!winningPlayersID.Contains(playerID))
-					rerollPerPlayer[playerID] += rerollPointsPerRound.Value;
+				if (!winningPlayersID.Contains(player.playerID))
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul += rerollPointsPerRound.Value;
 			}
 
 			// gain per point won
@@ -115,7 +118,8 @@ namespace OwlCards
 			{
 				if (!winningPlayersID.Contains(pointWinner))
 				{
-					rerollPerPlayer[pointWinner] += rerollPointsPerPointWon.Value;
+					Player player = Utils.GetPlayerWithID(pointWinner);
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soul += rerollPointsPerPointWon.Value;
 					rerollEarnedWithPoints += rerollPointsPerPointWon.Value;
 				}
 			}
