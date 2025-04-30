@@ -15,7 +15,6 @@ namespace OwlCards
 {
 	internal class RerollButton : MonoBehaviour
 	{
-		bool bIsWatchingForInput = false;
 		bool bNeedToAddUI = false;
 		static public RerollButton instance = null;
 
@@ -41,16 +40,6 @@ namespace OwlCards
 			// delay UI creation as we don't know who is the pickrID yet
 			bNeedToAddUI = true;
 
-			// Bugs if PickCards() is called before full instantiation, delay as a cheap fix
-			StartCoroutine(SetInputAsActive(1.0f)); // /!\ TODO adapt this to the amount of cards
-
-			yield break;
-		}
-
-		IEnumerator SetInputAsActive(float delay)
-		{
-			yield return new WaitForSeconds(delay);
-			bIsWatchingForInput = true;
 			yield break;
 		}
 
@@ -58,7 +47,6 @@ namespace OwlCards
 		{
 			OwlCards.Log("PlayerPickEnd called !");
 
-			bIsWatchingForInput = false;
 			UI.Manager.instance.RemoveFill();
 			yield break;
 		}
@@ -68,13 +56,15 @@ namespace OwlCards
 			int pickrID = CardChoice.instance.pickrID;
 			if (pickrID == -1)
 				return;
+			var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
+			bool isPlaying = (bool)isPlayingField.GetValue(CardChoice.instance);
 			if (bNeedToAddUI)
 			{
 				UI.Manager.instance.BuildFillUI(Utils.GetPlayerWithID(CardChoice.instance.pickrID));
 				bNeedToAddUI = false;
 			}
 			float currentSoul = Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
-			if (bIsWatchingForInput && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
+			if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
 			{
 				PlayerActions[] watchedActions = null;
 				watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
@@ -88,14 +78,11 @@ namespace OwlCards
 						PlayerAction watchedSpecificInput = watchedActions[i].Block;
 						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
-							bIsWatchingForInput = false;
 							RerollCurrentCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
 							break;
 						}
 						if (((OneAxisInputControl)(watchedActions[i].Fire)).WasPressed && currentSoul > OwlCards.instance.extraPickSoulCost.Value)
 						{
-							bIsWatchingForInput = false;
-
 							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
 							int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
 
@@ -118,7 +105,6 @@ namespace OwlCards
 
 		public void RerollCurrentCards(int pickrID, float soulUsed, GameObject cardToPick = null, bool bClearCards = true)
 		{
-			bIsWatchingForInput = false;
 			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
 			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).rerolls += 1;
 			CardChoice.instance.Pick(cardToPick, bClearCards);
