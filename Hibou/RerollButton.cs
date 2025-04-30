@@ -17,7 +17,6 @@ namespace OwlCards
 	{
 		bool bIsWatchingForInput = false;
 		bool bNeedToAddUI = false;
-		int lastPickrID = -1;
 		static public RerollButton instance = null;
 
 
@@ -26,11 +25,13 @@ namespace OwlCards
 			instance = this;
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.VeryLow);
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd, GameModeHooks.Priority.VeryHigh);
+			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.VeryLow);
 		}
 		void OnDestroy()
 		{
 			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
 			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
+			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls);
 		}
 
 		IEnumerator OnPlayerPickStart(IGameModeHandler gm)
@@ -41,7 +42,7 @@ namespace OwlCards
 			bNeedToAddUI = true;
 
 			// Bugs if PickCards() is called before full instantiation, delay as a cheap fix
-			StartCoroutine(SetInputAsActive(1.0f)); // TODO adapt this to the amount of cards
+			StartCoroutine(SetInputAsActive(1.0f)); // /!\ TODO adapt this to the amount of cards
 
 			yield break;
 		}
@@ -119,17 +120,27 @@ namespace OwlCards
 		{
 			bIsWatchingForInput = false;
 			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
-			lastPickrID = pickrID;
-			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, Reroll, GameModeHooks.Priority.Last);
+			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).rerolls += 1;
 			CardChoice.instance.Pick(cardToPick, bClearCards);
 		}
 
-		private IEnumerator Reroll(IGameModeHandler gm)
+		private IEnumerator CheckRerolls(IGameModeHandler gm)
 		{
-			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, Reroll);
+			int pickrID = -1;
+			foreach (Player player in PlayerManager.instance.players.ToArray())
+			{
+				if (Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).rerolls > 0)
+				{
+					pickrID = player.playerID;
+					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).rerolls -= 1;
+				}
+			}
+			if (pickrID == -1)
+				yield break;
+
 			yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickStart);
-			CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == lastPickrID).First(), true);
-			yield return CardChoice.instance.DoPick(1, lastPickrID, PickerType.Player);
+			CardChoiceVisuals.instance.Show(Enumerable.Range(0, PlayerManager.instance.players.Count).Where(i => PlayerManager.instance.players[i].playerID == pickrID).First(), true);
+			yield return CardChoice.instance.DoPick(1, pickrID, PickerType.Player);
 			yield return new WaitForSecondsRealtime(0.1f);
 			yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);
 			yield return new WaitForSecondsRealtime(0.1f);

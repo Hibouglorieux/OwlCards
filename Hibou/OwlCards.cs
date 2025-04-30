@@ -28,7 +28,7 @@ namespace OwlCards
 	[BepInProcess("Rounds.exe")]
 	public class OwlCards : BaseUnityPlugin
 	{
-		private const string ModId = "com.Hibou.Glorieux.OwlCards";
+		private const string ModId = "com.HibouGlorieux.Rounds.OwlCards";
 		public const string ModName = "OwlCards";
 		public const string Version = "0.1.0"; // What version are we on (major.minor.patch)?
 

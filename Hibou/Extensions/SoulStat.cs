@@ -8,6 +8,7 @@ namespace OwlCards.Extensions
 	public class CharacterStatModifiersAdditionalData
 	{
 		private float _soul;
+		public int rerolls;
 		public float Soul { get { return _soul; } set
 			{
 				if (_soul != value)
@@ -23,6 +24,7 @@ namespace OwlCards.Extensions
 		public CharacterStatModifiersAdditionalData()
 		{
 			Soul = OwlCards.instance.soulOnGameStart.Value;
+			rerolls = 0;
 		}
 	}
 
@@ -52,6 +54,7 @@ namespace OwlCards.Extensions
 			private static void Prefix(CharacterStatModifiers __instance)
 			{
 				__instance.GetAdditionalData().Soul = OwlCards.instance.soulOnGameStart.Value;
+				__instance.GetAdditionalData().rerolls = 0;
 			}
 		}
 }
