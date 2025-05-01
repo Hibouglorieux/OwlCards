@@ -19,7 +19,9 @@ namespace OwlCards.Cards
 					Extensions.CharacterStatModifiersExtension.GetAdditionalData(otherPlayer.data.stats).Soul -= 0.5f;
 				}
 			}
-			RerollButton.instance.RerollCurrentCards(player.playerID, 0);
+			RerollButton.instance.AddReroll(new int[] { player.playerID }, new int[] {
+				Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).Rerolls + 1
+			});
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

@@ -3,13 +3,13 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnboundLib.GameModes;
-using UnityEngine.SceneManagement;
-using ModdingUtils.Extensions;
-using UnityEngine.Events;
 using System.Linq;
 using InControl;
-using UnityEngine.UI;
 using HarmonyLib;
+using Photon.Pun;
+using UnboundLib.Networking;
+using OwlCards.Extensions;
+using UnboundLib;
 
 namespace OwlCards
 {
@@ -24,7 +24,7 @@ namespace OwlCards
 			instance = this;
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart, GameModeHooks.Priority.VeryLow);
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd, GameModeHooks.Priority.VeryHigh);
-			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.VeryLow);
+			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.First);
 		}
 		void OnDestroy()
 		{
@@ -63,7 +63,7 @@ namespace OwlCards
 				UI.Manager.instance.BuildFillUI(Utils.GetPlayerWithID(CardChoice.instance.pickrID));
 				bNeedToAddUI = false;
 			}
-			float currentSoul = Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
+			float currentSoul = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
 			if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
 			{
 				PlayerActions[] watchedActions = null;
@@ -78,7 +78,7 @@ namespace OwlCards
 						PlayerAction watchedSpecificInput = watchedActions[i].Block;
 						if (((OneAxisInputControl)watchedSpecificInput).WasPressed)
 						{
-							RerollCurrentCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
+							Reroll(pickrID, OwlCards.instance.rerollSoulCost.Value);
 							break;
 						}
 						if (((OneAxisInputControl)(watchedActions[i].Fire)).WasPressed && currentSoul > OwlCards.instance.extraPickSoulCost.Value)
@@ -89,7 +89,7 @@ namespace OwlCards
 							var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
 							List<GameObject> spawnedCards = listRefField(CardChoice.instance);
 
-							RerollCurrentCards(pickrID, OwlCards.instance.extraPickSoulCost.Value, spawnedCards[selectedCardIndex]);
+							Reroll(pickrID, OwlCards.instance.extraPickSoulCost.Value, spawnedCards[selectedCardIndex]);
 							break;
 						}
 						/* the method is private and i can't deselect it for some reason
@@ -103,11 +103,96 @@ namespace OwlCards
 			}
 		}
 
-		public void RerollCurrentCards(int pickrID, float soulUsed, GameObject cardToPick = null, bool bClearCards = true)
+		[UnboundRPC]
+		public static void UpdateRerollValue(int[] playerIDs, int[] newValues)
 		{
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).rerolls += 1;
-			CardChoice.instance.Pick(cardToPick, bClearCards);
+			for (int i = 0; i < playerIDs.Length; i++)
+			{
+				int playerID = playerIDs[i];
+				int newValue = newValues[i];
+
+				CharacterStatModifiersOwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
+				var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
+				rerollsField.SetValue(additionalData, newValue);
+
+				OwlCards.Log("Updated reroll value with new value: " + newValues[i]);
+			}
+		}
+
+
+		private IEnumerator ReplaceCards()
+		{
+			// Copied from  CardChoice.ReplaceCards (line 208)
+			var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
+			isPlayingField.SetValue(CardChoice.instance, true);
+
+			var spawnedCardsRef = AccessTools.FieldRefAccess<List<GameObject>>(typeof(CardChoice), "spawnedCards");
+			List<GameObject> spawnedCards = spawnedCardsRef(CardChoice.instance);
+			for (int i = 0; i < spawnedCards.Count; i++)
+			{
+				// changed to Pick to make the card disappear with photon/RPC
+				// unlike default method which is local with Leave()
+				spawnedCards[i].GetComponentInChildren<CardVisuals>().Pick();
+				yield return new WaitForSecondsRealtime(0.1f);
+			}
+			spawnedCards.Clear();
+			yield return new WaitForSecondsRealtime(0.2f);
+
+			CardChoice.instance.GetComponent<PhotonView>().RPC("RPCA_DonePicking", RpcTarget.All);
+			isPlayingField.SetValue(CardChoice.instance, false);
+		}
+		private void PickCard(GameObject cardToPick)
+		{
+			CardChoice.instance.Pick(cardToPick, cardToPick == null);
+			// this is done in CardChoice:435 in normal pick behaviour, pickr ID should be set to -1 after call
+			CardChoice.instance.pickrID = -1;
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="playersIDs"></param>
+		/// <param name="newRerollsValue">If null then will be current value + 1</param>
+		public void AddReroll(int[] playersIDs, int[] newRerollsValue = null)
+		{
+			if (newRerollsValue == null)
+			{
+				newRerollsValue = new int[playersIDs.Length];
+				for (int i = 0; i < newRerollsValue.Length; i++)
+				{
+					CharacterStatModifiers stats = Utils.GetPlayerWithID(playersIDs[i]).data.stats;
+					newRerollsValue[i] = CharacterStatModifiersExtension.GetAdditionalData(stats).Rerolls + 1;
+				}
+			}
+			object[] data = { playersIDs, newRerollsValue };
+			NetworkingManager.RPC(typeof(RerollButton), nameof(UpdateRerollValue), data);
+		}
+
+		/// <summary>
+		/// This method is called to reroll cards displayed without picking a card
+		/// </summary>
+		/// <param name="pickrID"></param>
+		/// <param name="soulUsed"></param>
+		/// <param name="cardToPick"></param>
+		private void Reroll(int pickrID, float soulUsed, GameObject cardToPick = null)
+		{
+			CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
+			AddReroll(new int[] { pickrID });
+			if (PhotonNetwork.OfflineMode)
+			{
+				PickCard(cardToPick);
+			}
+			else
+			{
+				if (cardToPick)
+				{
+					PickCard(cardToPick);
+				}
+				else
+				{
+					StartCoroutine(ReplaceCards());
+				}
+			}
 		}
 
 		private IEnumerator CheckRerolls(IGameModeHandler gm)
@@ -115,10 +200,14 @@ namespace OwlCards
 			int pickrID = -1;
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
-				if (Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).rerolls > 0)
+				CharacterStatModifiers stats = player.data.stats;
+
+				if (CharacterStatModifiersExtension.GetAdditionalData(stats).Rerolls > 0)
 				{
 					pickrID = player.playerID;
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).rerolls -= 1;
+					CharacterStatModifiersOwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(stats);
+					var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
+					rerollsField.SetValue(additionalData, additionalData.Rerolls - 1);
 				}
 			}
 			if (pickrID == -1)

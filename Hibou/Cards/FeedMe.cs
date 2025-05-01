@@ -1,5 +1,6 @@
 ﻿using OwlCards.Logic;
 using UnboundLib;
+using UnityEngine;
 
 namespace OwlCards.Cards
 {
@@ -47,12 +48,10 @@ namespace OwlCards.Cards
 			};
 		}
 
-		/*
-			protected override GameObject GetCardArt()
-			{
-				return GetCardArt("C_CARD_NAME");
-			}
-		*/
+		protected override GameObject GetCardArt()
+		{
+			return GetCardArt("C_FeedMe");
+		}
 		protected override CardInfo.Rarity GetRarity()
 		{
 			return CardInfo.Rarity.Common;
