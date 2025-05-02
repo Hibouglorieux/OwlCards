@@ -1,11 +1,8 @@
-﻿using ModdingUtils;
-using ModdingUtils.RoundsEffects;
-using OwlCards.Cards;
+﻿using OwlCards.Cards;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
+using OwlCards.Extensions;
 
 namespace OwlCards.Logic
 {
@@ -29,7 +26,8 @@ namespace OwlCards.Logic
 			yield return new WaitForEndOfFrame();
 			if (damagedPlayer.data.dead)
 			{
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(owner.data.stats).Soul += LastHitter.soulGainedPerKill;
+				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(owner.data.stats).Soul + LastHitter.soulGainedPerKill;
+				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { owner.playerID }, new float[] { newSoul});
 			}
 			yield break;
 		}

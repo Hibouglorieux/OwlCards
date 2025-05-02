@@ -1,6 +1,7 @@
 ﻿using OwlCards.Logic;
 using System.ComponentModel;
 using UnboundLib;
+using Photon.Pun;
 
 namespace OwlCards.Cards
 {
@@ -18,7 +19,8 @@ namespace OwlCards.Cards
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			var logic = player.gameObject.GetOrAddComponent<LastHitter_Logic>();
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				player.gameObject.GetOrAddComponent<LastHitter_Logic>();
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

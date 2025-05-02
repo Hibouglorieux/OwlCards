@@ -5,16 +5,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnboundLib.GameModes;
+using OwlCards.Extensions;
 using UnityEngine;
 
 namespace OwlCards.Logic
 {
-	// perhaps use a  instead of a DealtDamageEffect HitEffect
+	// perhaps use a HitEffect instead of a DealtDamageEffect
 	[DisallowMultipleComponent]
 	internal class SoulLeech_Logic : DealtDamageEffect
 	{
 		Player player;
-		Dictionary<int, float> rerollsLeftToStealThisPoint = new Dictionary<int, float>();
+		Dictionary<int, float> soulLeftToStealThisPoint = new Dictionary<int, float>();
 		void Start()
 		{
 			player = GetComponent<Player>();
@@ -23,7 +24,7 @@ namespace OwlCards.Logic
 
 		private IEnumerator ResetStats(IGameModeHandler gm)
 		{
-			rerollsLeftToStealThisPoint.Clear();
+			soulLeftToStealThisPoint.Clear();
 			yield break;
 		}
 
@@ -31,10 +32,10 @@ namespace OwlCards.Logic
 		{
             if (!selfDamage && damagedPlayer)
 			{
-				if (!rerollsLeftToStealThisPoint.ContainsKey(damagedPlayer.playerID))
-					rerollsLeftToStealThisPoint.Add(damagedPlayer.playerID, SoulLeech.maxLeechPerRoundPerPlayer);
+				if (!soulLeftToStealThisPoint.ContainsKey(damagedPlayer.playerID))
+					soulLeftToStealThisPoint.Add(damagedPlayer.playerID, SoulLeech.maxLeechPerRoundPerPlayer);
 
-				float maxAmountToSteal = rerollsLeftToStealThisPoint[damagedPlayer.playerID];
+				float maxAmountToSteal = soulLeftToStealThisPoint[damagedPlayer.playerID];
 				if (maxAmountToSteal <= 0)
 					return;
 
@@ -43,11 +44,17 @@ namespace OwlCards.Logic
 				float soulToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
 				soulToSteal = Mathf.Min(soulToSteal, maxAmountToSteal);
 
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += soulToSteal;
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(damagedPlayer.data.stats).Soul -= soulToSteal;
-				rerollsLeftToStealThisPoint[damagedPlayer.playerID] -= soulToSteal;
 
-				OwlCards.Log("Stole: " + soulToSteal + " steal");
+				int[] playerIDs = new int[2] { player.playerID, damagedPlayer.playerID };
+				float[] newSouls = new float[2] {
+				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulToSteal,
+				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul - soulToSteal
+				};
+				CharacterStatModifiersOwlCardsData.UpdateSoul(playerIDs, newSouls);
+
+				soulLeftToStealThisPoint[damagedPlayer.playerID] -= soulToSteal;
+
+				OwlCards.Log("Stole: " + soulToSteal + " steal" + " from playerID: " + damagedPlayer.playerID + " to me: " + player.playerID);
             }
         }
 

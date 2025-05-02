@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using RarityBundle;
 
 namespace OwlCards.Cards
 {
@@ -47,7 +48,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Common;
+			return Rarities.Common;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

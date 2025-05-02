@@ -1,4 +1,5 @@
 ﻿using OwlCards.Logic;
+using Photon.Pun;
 using UnboundLib;
 using UnityEngine;
 
@@ -18,7 +19,8 @@ namespace OwlCards.Cards
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			//Edits values on player when card is selected
-			player.gameObject.GetOrAddComponent<SoulLeech_Logic>();
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				player.gameObject.GetOrAddComponent<SoulLeech_Logic>();
 		}
 
 		private void MyCustomDamageDealt(Vector2 whatIsThisIDontEvenKnow, bool bThisIsABoolean)

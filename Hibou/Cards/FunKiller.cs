@@ -1,4 +1,6 @@
-﻿
+﻿using OwlCards.Extensions;
+using Photon.Pun;
+
 namespace OwlCards.Cards
 {
 	internal class FunKiller : AOwlCard
@@ -7,21 +9,33 @@ namespace OwlCards.Cards
 		{
 			conditions[GetTitle()] = (float soul) => { return soul >= 2; };
 			cardInfo.allowMultiple = false;
+			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).Soul -= 2;
-			foreach (Player otherPlayer in PlayerManager.instance.players.ToArray())
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
-				if (otherPlayer.playerID != player.playerID)
+				int[] playersIDs = new int[PlayerManager.instance.players.Count];
+				float[] souls = new float[PlayerManager.instance.players.Count];
+				for (int i = 0; i < playersIDs.Length; i++)
 				{
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(otherPlayer.data.stats).Soul -= 0.5f;
+					int playerID = PlayerManager.instance.players[i].playerID;
+					float soul = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats).Soul;
+					if (playerID == player.playerID)
+						soul -= 2f;
+					else
+						soul -= 0.5f;
+
+					playersIDs[i] = playerID;
+					souls[i] = soul;
 				}
-			}
+				CharacterStatModifiersOwlCardsData.UpdateSoul(playersIDs, souls);
+
 			RerollButton.instance.AddReroll(new int[] { player.playerID }, new int[] {
 				Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).Rerolls + 1
 			});
+			}
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

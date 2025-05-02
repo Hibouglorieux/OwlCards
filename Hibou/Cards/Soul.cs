@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using OwlCards.Extensions;
+using Photon.Pun;
 
 namespace OwlCards.Cards
 {
@@ -11,7 +13,11 @@ namespace OwlCards.Cards
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += 1;
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+			{
+				float soul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul;
+				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] {soul + 1});
+			}
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

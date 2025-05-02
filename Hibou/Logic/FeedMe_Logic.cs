@@ -1,4 +1,5 @@
 ﻿using OwlCards.Cards;
+using OwlCards.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace OwlCards.Logic
 	internal class FeedMe_Logic : WasDealtDamageEffect
 	{
 		Player player;
-		float rerollLeftToGainThisPoint = FeedMe.rerollPointsToGainPerPoint;
+		float soulLeftToGainThisPoint = FeedMe.soulPointsToGainPerPoint;
 		void Start()
 		{
 			player = GetComponent<Player>();
@@ -20,20 +21,21 @@ namespace OwlCards.Logic
 
 		private IEnumerator ResetLimitGainedPerPoint(IGameModeHandler gm)
 		{
-			OwlCards.Log("FeedMe gave " + (rerollLeftToGainThisPoint - FeedMe.rerollPointsToGainPerPoint) + " rerolls this round point");
-			rerollLeftToGainThisPoint = FeedMe.rerollPointsToGainPerPoint;
+			OwlCards.Log("FeedMe gave " + (FeedMe.soulPointsToGainPerPoint - soulLeftToGainThisPoint) + " rerolls this round point");
+			soulLeftToGainThisPoint = FeedMe.soulPointsToGainPerPoint;
 			yield break;
 		}
 
 		public override void WasDealtDamage(Vector2 damage, bool selfDamage)
 		{
-			if (!selfDamage && rerollLeftToGainThisPoint > 0)
+			if (!selfDamage && soulLeftToGainThisPoint > 0)
 			{
-				float rerollEarned = damage.magnitude / 1000.0f;
-				rerollEarned = Mathf.Min(rerollLeftToGainThisPoint, rerollEarned);
+				float soulEarned = damage.magnitude / 1000.0f;
+				soulEarned = Mathf.Min(soulLeftToGainThisPoint, soulEarned);
 
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollEarned;
-				rerollLeftToGainThisPoint -= rerollEarned;
+				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulEarned;
+				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] { newSoul});
+				soulLeftToGainThisPoint -= soulEarned;
 			}
 		}
 		void OnDestroy()

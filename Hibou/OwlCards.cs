@@ -15,6 +15,8 @@ using Photon.Compression;
 using System;
 using System.Linq;
 using OwlCards.Cards;
+using OwlCards.Extensions;
+using Photon.Pun;
 
 namespace OwlCards
 {
@@ -22,6 +24,9 @@ namespace OwlCards
 	[BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
+	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
+	[BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
+
 	// Declares our mod to Bepin
 	[BepInPlugin(ModId, ModName, Version)]
 	// The game our mod is associated with
@@ -41,18 +46,20 @@ namespace OwlCards
 
 		public ConfigEntry<float> soulOnGameStart;
 		public ConfigEntry<float> soulGainedPerRound;
-		public ConfigEntry<float> rerollPointsPerPointWon;
+		public ConfigEntry<float> soulGainedPerPointWon;
 
 		public ConfigEntry<float> rerollSoulCost;
 		public ConfigEntry<float> extraPickSoulCost;
-		private List<int> pointWinnersID = new List<int>();
+		private List<int[]> pointWinnersID = new List<int[]>();
+
+		int tmp;
 
 		void Awake()
         {
 			instance = this;
 
 			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
-			rerollPointsPerPointWon = Config.Bind(ModName, nameof(rerollPointsPerPointWon), 0.25f, "How much soul resource is earned passively each round");
+			soulGainedPerPointWon = Config.Bind(ModName, nameof(soulGainedPerPointWon), 0.25f, "How much soul resource is earned passively each round");
 			soulOnGameStart = Config.Bind(ModName, nameof(soulOnGameStart), 1.0f, "How much soul you have when a game starts");
 
 			rerollSoulCost = Config.Bind(ModName, nameof(rerollSoulCost), 1.0f, "how much soul does it cost to reroll");
@@ -81,10 +88,11 @@ namespace OwlCards
 
 		private IEnumerator TrackPointWinners(IGameModeHandler gm)
 		{
+			if (!(PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient))
+				yield break;
+
 			int[] newPointWinners = gm.GetPointWinners();
-			foreach (int newPointWinner in newPointWinners)
-				pointWinnersID.Add(newPointWinner);
-			yield break;
+			pointWinnersID.Add((int[])gm.GetPointWinners().Clone());
 		}
 
 		private bool OwlCardValidation(Player player, CardInfo cardInfo)
@@ -116,33 +124,79 @@ namespace OwlCards
 
 			// TODO need to be tested
             CustomCard.BuildCard<Cards.SoulExhaustion>();
+			//gives a legendary card but gives a reroll to everyone else
+			CustomCard.BuildCard<Cards.CorruptedPower>();
+
+
+			//gives a random strong card but gives soul to others
+			//CustomCard.BuildCard<Cards.Soul>();
+
+
+			//gives a random low card but you earn soul
+			//CustomCard.BuildCard<Cards.Soul>();
+			
+			//trade soul for random strong card
+			//CustomCard.BuildCard<Cards.Soul>();
+
+			//trade random curse for some soul
+			//CustomCard.BuildCard<Cards.Soul>();
+
+			//remove X soul and instead have a good draw
+			//CustomCard.BuildCard<Cards.Soul>();
+
 		}
 
 		private IEnumerator UpdatePlayerResourcesRoundEnd(IGameModeHandler gm)
 		{
+			if (!(PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient))
+				yield break;
+
 			int[] winningPlayersID = gm.GetRoundWinners();
 
+			Dictionary<int, float> newSoulValues = new Dictionary<int, float>();
 			// passive gain
 			foreach (Player player in PlayerManager.instance.players.ToArray())
 			{
 				if (!winningPlayersID.Contains(player.playerID))
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += soulGainedPerRound.Value;
-			}
-
-			// gain per point won
-			float rerollEarnedWithPoints = 0;
-			foreach (int pointWinner in pointWinnersID)
-			{
-				if (!winningPlayersID.Contains(pointWinner))
 				{
-					Player player = Utils.GetPlayerWithID(pointWinner);
-					Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul += rerollPointsPerPointWon.Value;
-					rerollEarnedWithPoints += rerollPointsPerPointWon.Value;
+					newSoulValues.Add(player.playerID,
+						CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulGainedPerRound.Value
+						);
 				}
 			}
+
+			// the last added value is BAD as gamemode doesn't update the data when round is won
+			pointWinnersID.RemoveAt(pointWinnersID.Count - 1);
+			// gain per point won
+			float soulEarnedWithPoints = 0;
+			foreach (int[] pointWinners in pointWinnersID)
+			{
+				foreach (int pointWinner in pointWinners)
+				{
+					if (!winningPlayersID.Contains(pointWinner))
+					{
+						Player player = Utils.GetPlayerWithID(pointWinner);
+						if (newSoulValues.ContainsKey(player.playerID))
+						{
+							newSoulValues[player.playerID] += soulGainedPerPointWon.Value;
+						}
+						else
+						{
+							newSoulValues.Add(player.playerID,
+								CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulGainedPerPointWon.Value
+								);
+						}
+						soulEarnedWithPoints += soulGainedPerPointWon.Value;
+					}
+				}
+			}
+			var pairs = newSoulValues.ToArray();
+			int[] playerIDs = pairs.Select(p => p.Key).ToArray();
+			float[] souls = pairs.Select(p => p.Value).ToArray();
+			CharacterStatModifiersOwlCardsData.UpdateSoul(playerIDs, souls);
+
 			pointWinnersID.Clear();
-			Log("End of round total points earned with Points won: " + rerollEarnedWithPoints);
-			yield break;
+			Log("End of round total points earned with Points won: " + soulEarnedWithPoints);
 		}
 
 		void OnDestroy()

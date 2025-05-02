@@ -1,4 +1,5 @@
 ﻿using OwlCards.Logic;
+using Photon.Pun;
 using UnboundLib;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace OwlCards.Cards
 {
 	internal class FeedMe : AOwlCard
 	{
-		public const float rerollPointsToGainPerPoint = 0.3f;
+		public const float soulPointsToGainPerPoint = 0.3f;
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			statModifiers.health = 1.5f;
@@ -15,7 +16,8 @@ namespace OwlCards.Cards
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			player.gameObject.GetOrAddComponent<FeedMe_Logic>();
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				player.gameObject.GetOrAddComponent<FeedMe_Logic>();
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

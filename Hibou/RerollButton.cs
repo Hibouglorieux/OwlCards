@@ -104,7 +104,7 @@ namespace OwlCards
 		}
 
 		[UnboundRPC]
-		public static void UpdateRerollValue(int[] playerIDs, int[] newValues)
+		private static void UpdateRerollValue_RPC(int[] playerIDs, int[] newValues)
 		{
 			for (int i = 0; i < playerIDs.Length; i++)
 			{
@@ -114,8 +114,6 @@ namespace OwlCards
 				CharacterStatModifiersOwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
 				var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
 				rerollsField.SetValue(additionalData, newValue);
-
-				OwlCards.Log("Updated reroll value with new value: " + newValues[i]);
 			}
 		}
 
@@ -165,7 +163,7 @@ namespace OwlCards
 				}
 			}
 			object[] data = { playersIDs, newRerollsValue };
-			NetworkingManager.RPC(typeof(RerollButton), nameof(UpdateRerollValue), data);
+			NetworkingManager.RPC(typeof(RerollButton), nameof(UpdateRerollValue_RPC), data);
 		}
 
 		/// <summary>
@@ -176,7 +174,8 @@ namespace OwlCards
 		/// <param name="cardToPick"></param>
 		private void Reroll(int pickrID, float soulUsed, GameObject cardToPick = null)
 		{
-			CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul -= soulUsed;
+			CharacterStatModifiersOwlCardsData.UpdateSoul(pickrID,
+			CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - soulUsed);
 			AddReroll(new int[] { pickrID });
 			if (PhotonNetwork.OfflineMode)
 			{

@@ -30,8 +30,8 @@ namespace OwlCards
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
 			MenuHandler.CreateSlider("Extra reroll earned per point won (not applied to round winner)(should it ?)", menu, 30, 0, 1,
-				OwlCards.instance.rerollPointsPerPointWon.Value,
-				(float newValue) => { OwlCards.instance.rerollPointsPerPointWon.Value = newValue; }, out UnityEngine.UI.Slider _);
+				OwlCards.instance.soulGainedPerPointWon.Value,
+				(float newValue) => { OwlCards.instance.soulGainedPerPointWon.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
 			MenuHandler.CreateSlider("Starting rerolls", menu, 30, 0, 5,

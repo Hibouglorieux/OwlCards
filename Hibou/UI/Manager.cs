@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OwlCards.Cards;
+using OwlCards.Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -119,8 +121,23 @@ namespace OwlCards.UI
 			soulFill = Instantiate(assetFill, canvas.transform);
 			playerSoulFillID = player.playerID;
 			//added UI is a Border image which itself has a Background child, which has two childs Image and text
-			UpdateFillUI(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
-			Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += UpdateFillUI;
+			UpdateFillUI(CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
+			CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += UpdateFillUI;
+		}
+
+		void Update()
+		{
+			if (soulFill && CardChoice.instance.pickrID != -1)
+			{
+				if (playerSoulFillID != CardChoice.instance.pickrID)
+				{
+					CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerSoulFillID).data.stats).soulChanged -= UpdateFillUI;
+					playerSoulFillID = CardChoice.instance.pickrID;
+					CharacterStatModifiers stat = Utils.GetPlayerWithID(playerSoulFillID).data.stats;
+					UpdateFillUI(CharacterStatModifiersExtension.GetAdditionalData(stat).Soul);
+					CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerSoulFillID).data.stats).soulChanged += UpdateFillUI;
+				}
+			}
 		}
 
 		public void BuildSoulCounters()
@@ -146,10 +163,10 @@ namespace OwlCards.UI
 				//keep track of soulChanged to update in its value in real time, store it to be able to delete it once the game is over
 				Action<float> handler = (x) => UpdateSoulCounterValue(playerID, x);
 				handlers.Add(handler);
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += handler;
+				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += handler;
 
 				Text text = addedUI.GetComponent<Text>();
-				text.text = String.Format(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul.ToString("F2"));
+				text.text = String.Format(CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul.ToString("F2"));
 
 				// set position
 				// /!\ this is currently bugged for other resolutions than 2k for some reason i don't get
@@ -171,7 +188,7 @@ namespace OwlCards.UI
 		{
 			foreach (int playerID in soulCounters.Keys.ToArray())
 			{
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats).soulChanged -= handlers[playerID];
+				CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats).soulChanged -= handlers[playerID];
 				Destroy(soulCounters[playerID]);
 			}
 			handlers.Clear();
@@ -195,7 +212,7 @@ namespace OwlCards.UI
 
 			Player player = Utils.GetPlayerWithID(playerSoulFillID);
 			if (player)
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged -= UpdateFillUI;
+				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged -= UpdateFillUI;
 			Destroy(soulFill);
 			soulFill = null;
 		}
