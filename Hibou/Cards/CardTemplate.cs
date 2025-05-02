@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using RarityBundle;
+using RarityLib.Utils;
+using ModdingUtils.Extensions;
 
 namespace OwlCards.Cards
 {

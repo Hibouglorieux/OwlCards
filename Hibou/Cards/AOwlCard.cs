@@ -1,12 +1,10 @@
 ﻿using CardChoiceSpawnUniqueCardPatch.CustomCategories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnboundLib;
 using UnboundLib.Cards;
 using UnityEngine;
+using RarityLib.Utils;
+using RarityBundle;
 
 
 namespace OwlCards.Cards
@@ -20,6 +18,19 @@ namespace OwlCards.Cards
 		{
 			cardInfo.categories = new CardCategory[] { OwlCardCategory.modCategory};
 			SetupCard_child(cardInfo, gun, cardStats, statModifiers, block);
+		}
+
+		protected string RarityToColorString(CardInfo.Rarity rarity)
+		{
+			Rarity rarityObj = RarityUtils.GetRarityData(rarity);
+			Color color = rarityObj.color;
+			int r = (int)(0xFF / color.r);
+			int g = (int)(0xFF / color.g);
+			int b = (int)(0xFF / color.b);
+
+			string coloredRarity = "<#" + r.ToString("X2") + g.ToString("X2") + b.ToString("X2") + ">" + rarityObj.name + "</color>";
+			OwlCards.Log(coloredRarity);
+			return coloredRarity;
 		}
 		protected GameObject GetCardArt(string name)
 		{
