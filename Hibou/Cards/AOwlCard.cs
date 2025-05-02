@@ -78,7 +78,7 @@ namespace OwlCards.Cards
 			Rarity[] rarities = RarityUtils.Rarities.Values.ToArray();
 			foreach (Rarity rarity in rarities)
 			{
-				rarityCategories.Add(rarity.value, CustomCardCategories.instance.CardCategory(rarity.name));
+				rarityCategories.Add(rarity.value, CustomCardCategories.instance.CardCategory("OwlCards-" + rarity.name));
 			}
 		}
 		public static CardCategory[] GetRarityCategoryAndLower(CardInfo.Rarity rarity, bool bGetReverseArray)
