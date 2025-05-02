@@ -15,9 +15,9 @@ namespace OwlCards.UI
 	internal class Manager : MonoBehaviour
 	{
 		public static Manager instance;
-		private GameObject canvas;
-		private GameObject soulFill;
-		private int playerSoulFillID;
+		private GameObject canvas = null;
+		private GameObject soulFill = null;
+		private int playerSoulFillID = -1;
 		private Dictionary<int, GameObject> soulCounters = new Dictionary<int, GameObject>();
 		private List<Action<float>> handlers = new List<Action<float>>();
 
@@ -30,11 +30,21 @@ namespace OwlCards.UI
 		{
 			GameModeManager.AddHook(GameModeHooks.HookGameStart, BuildUI);
 			GameModeManager.AddHook(GameModeHooks.HookGameEnd, ClearUI);
-			//GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, BuildUI);
+
+			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
+		}
+
+		private IEnumerator OnPlayerPickEnd(IGameModeHandler gm)
+		{
+			playerSoulFillID = -1;
+			soulFill.SetActive(false);
+			yield break;
 		}
 
 		void OnDestroy()
 		{
+			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
+
 			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, BuildUI);
 			GameModeManager.RemoveHook(GameModeHooks.HookGameEnd, ClearUI);
 		}
@@ -42,6 +52,7 @@ namespace OwlCards.UI
 		private IEnumerator BuildUI(IGameModeHandler handler)
 		{
 			BuildCanvas();
+			BuildFillUI();
 			BuildSoulCounters();
 			yield break;
 		}
@@ -55,19 +66,18 @@ namespace OwlCards.UI
 
 		public void BuildCanvas()
 		{
-
-			//canvas = GameObject.Find("UI_Game").transform.GetChild(0).gameObject;
 			GameObject assetCanvas = OwlCards.instance.Bundle.LoadAsset<GameObject>("OC_UI_Canvas");
 			GameObject UI = GameObject.Find("UI_Game");
 
 			canvas = Instantiate(assetCanvas, UI.transform);
-
 		}
 
 		public void UpdateFillUI(float soulValue)
 		{
 			if (!soulFill)
 				return;
+
+			//added UI is a Border image which itself has a Background child, which has two childs Image and text
 			Transform background = soulFill.transform.GetChild(0);
 			Image fillImage = background.GetChild(0).GetComponent<Image>();
 			Text text = background.GetChild(1).GetComponent<Text>();
@@ -123,7 +133,7 @@ namespace OwlCards.UI
 			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg; 
 		}
 
-		public void BuildFillUI(Player player)
+		public void BuildFillUI()
 		{
 			//already existant
 			if (soulFill)
@@ -132,23 +142,20 @@ namespace OwlCards.UI
 			if (!canvas)
 				BuildCanvas();
 			soulFill = Instantiate(assetFill, canvas.transform);
-			playerSoulFillID = player.playerID;
-			//added UI is a Border image which itself has a Background child, which has two childs Image and text
-			UpdateFillUI(CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
-			CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += UpdateFillUI;
+			soulFill.SetActive(false);
 		}
 
 		void Update()
 		{
+			// this 'should' be done at playerPickStart hook
+			// however CardChoice.instance.pickrID isn't set yet
 			if (soulFill && CardChoice.instance.pickrID != -1)
 			{
 				if (playerSoulFillID != CardChoice.instance.pickrID)
 				{
-					CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerSoulFillID).data.stats).soulChanged -= UpdateFillUI;
 					playerSoulFillID = CardChoice.instance.pickrID;
-					CharacterStatModifiers stat = Utils.GetPlayerWithID(playerSoulFillID).data.stats;
-					UpdateFillUI(CharacterStatModifiersExtension.GetAdditionalData(stat).Soul);
-					CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerSoulFillID).data.stats).soulChanged += UpdateFillUI;
+					soulFill.SetActive(true);
+					UpdateFillUI(OwlCardsData.GetData(playerSoulFillID).Soul);
 				}
 			}
 		}
@@ -174,7 +181,7 @@ namespace OwlCards.UI
 				soulCounters[playerID] = addedUI;
 
 				//keep track of soulChanged to update in its value in real time, store it to be able to delete it once the game is over
-				Action<float> handler = (x) => UpdateSoulCounterValue(playerID, x);
+				Action<float> handler = (x) => OnSoulValueChanged(playerID, x);
 				handlers.Add(handler);
 				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged += handler;
 
@@ -182,7 +189,6 @@ namespace OwlCards.UI
 				text.text = String.Format(CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul.ToString("F2"));
 
 				// set position
-				// /!\ this is currently bugged for other resolutions than 2k for some reason i don't get
 				Vector3 newPos = addedUI.transform.localPosition;
 				Canvas gameCanvas = CardViz.transform.parent.GetComponent<Canvas>();
 				newPos.y = Bar.localPosition.y * gameCanvas.scaleFactor / canvas.GetComponent<Canvas>().scaleFactor;
@@ -191,10 +197,15 @@ namespace OwlCards.UI
 			}
 		}
 
-		public void UpdateSoulCounterValue(int playerID, float newValue)
+		public void OnSoulValueChanged(int playerID, float newValue)
 		{
 			Text text = soulCounters[playerID].GetComponent<Text>();
 			text.text = String.Format(newValue.ToString("F2"));
+			if (playerID == playerSoulFillID)
+			{
+				if (soulFill.activeSelf)
+					UpdateFillUI(newValue);
+			}
 		}
 
 		public void RemoveCounters()
@@ -214,7 +225,6 @@ namespace OwlCards.UI
 			if (canvas)
 				Destroy(canvas);
 			canvas = null;
-			soulFill = null;
 			soulCounters = new Dictionary<int, GameObject>();
 		}
 

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace OwlCards.Cards
 {
-	internal class Pious : AOwlCard
+    internal class Pious : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
@@ -23,7 +23,7 @@ namespace OwlCards.Cards
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
 				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul - 3);
-				RerollButton.instance.Add1Reroll(player.playerID);
+				Reroll.instance.Add1Reroll(player.playerID);
 			}
 
 			CardCategory[] blacklistedCategories = OwlCardCategory.GetRarityCategories(Rarities.Exotic, Rarities.Rare, true);

@@ -6,7 +6,7 @@ using RarityLib.Utils;
 
 namespace OwlCards.Cards
 {
-	internal class CorruptedPower : AOwlCard
+    internal class CorruptedPower : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
@@ -27,7 +27,7 @@ namespace OwlCards.Cards
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
 				int[] othersIDs = Utils.GetOtherPlayersIDs(player.playerID);
-				RerollButton.instance.AddReroll(othersIDs);
+				Reroll.instance.AddReroll(othersIDs);
 			}
 
 			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,

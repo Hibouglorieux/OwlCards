@@ -19,8 +19,8 @@ using RarityLib.Utils;
 
 namespace OwlCards
 {
-	// These are the mods required for our mod to work
-	[BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
+    // These are the mods required for our mod to work
+    [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
@@ -76,7 +76,7 @@ namespace OwlCards
 			OptionMenu.CreateMenu();
 
 			// spawn specialized component
-			gameObject.AddComponent<RerollButton>();
+			gameObject.AddComponent<Reroll>();
 			gameObject.AddComponent<UI.Manager>();
 
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);

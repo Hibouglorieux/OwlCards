@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OwlCards.Cards
 {
-	internal class FunKiller : AOwlCard
+    internal class FunKiller : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
@@ -36,7 +36,7 @@ namespace OwlCards.Cards
 				}
 				OwlCardsData.UpdateSoul(playersIDs, souls);
 
-			RerollButton.instance.Add1Reroll(player.playerID);
+			Reroll.instance.Add1Reroll(player.playerID);
 			}
 			//Edits values on player when card is selected
 		}
