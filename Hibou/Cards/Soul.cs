@@ -16,7 +16,7 @@ namespace OwlCards.Cards
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
 				float soul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul;
-				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] {soul + 1});
+				OwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] {soul + 1});
 			}
 			//Edits values on player when card is selected
 		}

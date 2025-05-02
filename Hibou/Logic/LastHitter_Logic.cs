@@ -27,7 +27,7 @@ namespace OwlCards.Logic
 			if (damagedPlayer.data.dead)
 			{
 				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(owner.data.stats).Soul + LastHitter.soulGainedPerKill;
-				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { owner.playerID }, new float[] { newSoul});
+				OwlCardsData.UpdateSoul(new int[] { owner.playerID }, new float[] { newSoul});
 			}
 			yield break;
 		}

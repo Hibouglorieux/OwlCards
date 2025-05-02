@@ -111,8 +111,8 @@ namespace OwlCards
 				int playerID = playerIDs[i];
 				int newValue = newValues[i];
 
-				CharacterStatModifiersOwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
-				var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
+				OwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
+				var rerollsField = AccessTools.Field(typeof(OwlCardsData), "_rerolls");
 				rerollsField.SetValue(additionalData, newValue);
 			}
 		}
@@ -174,7 +174,7 @@ namespace OwlCards
 		/// <param name="cardToPick"></param>
 		private void Reroll(int pickrID, float soulUsed, GameObject cardToPick = null)
 		{
-			CharacterStatModifiersOwlCardsData.UpdateSoul(pickrID,
+			OwlCardsData.UpdateSoul(pickrID,
 			CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - soulUsed);
 			AddReroll(new int[] { pickrID });
 			if (PhotonNetwork.OfflineMode)
@@ -204,8 +204,8 @@ namespace OwlCards
 				if (CharacterStatModifiersExtension.GetAdditionalData(stats).Rerolls > 0)
 				{
 					pickrID = player.playerID;
-					CharacterStatModifiersOwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(stats);
-					var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
+					OwlCardsData additionalData = CharacterStatModifiersExtension.GetAdditionalData(stats);
+					var rerollsField = AccessTools.Field(typeof(OwlCardsData), "_rerolls");
 					rerollsField.SetValue(additionalData, additionalData.Rerolls - 1);
 				}
 			}

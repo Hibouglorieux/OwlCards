@@ -34,7 +34,7 @@ namespace OwlCards.Logic
 				soulEarned = Mathf.Min(soulLeftToGainThisPoint, soulEarned);
 
 				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulEarned;
-				CharacterStatModifiersOwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] { newSoul});
+				OwlCardsData.UpdateSoul(new int[] { player.playerID }, new float[] { newSoul});
 				soulLeftToGainThisPoint -= soulEarned;
 			}
 		}

@@ -1,17 +1,14 @@
-﻿using UnboundLib;
-using TMPro;
-using UnboundLib.Cards;
-using HarmonyLib;
+﻿using HarmonyLib;
 using BepInEx;
 using BepInEx.Configuration; // load and save data
 using UnityEngine;
-using UnityEngine.Events;
-using UnboundLib.Utils.UI;
+using UnboundLib;
+using UnboundLib.Cards;
 using UnboundLib.GameModes;
+using UnboundLib.Networking;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
-using Photon.Compression;
 using System;
 using System.Linq;
 using OwlCards.Cards;
@@ -40,7 +37,7 @@ namespace OwlCards
 		public const string ModInitials = "OWL";
 		private const string LogPrefix = ModName + ": ";
 
-		public static OwlCards instance {get; private set;}
+		public static OwlCards instance { get; private set; }
 
 		public readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("firstmodtest", typeof(OwlCards).Assembly);
 
@@ -55,7 +52,7 @@ namespace OwlCards
 		int tmp;
 
 		void Awake()
-        {
+		{
 			instance = this;
 
 			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
@@ -65,13 +62,13 @@ namespace OwlCards
 			rerollSoulCost = Config.Bind(ModName, nameof(rerollSoulCost), 1.0f, "how much soul does it cost to reroll");
 			extraPickSoulCost = Config.Bind(ModName, nameof(extraPickSoulCost), 3.0f, "how much soul does it cost to do an extra pick");
 
-            // Use this to call any harmony patch files your mod may have
-            var harmony = new Harmony(ModId);
-            harmony.PatchAll();
+			// Use this to call any harmony patch files your mod may have
+			var harmony = new Harmony(ModId);
+			harmony.PatchAll();
 
-        }
-        void Start()
-        {
+		}
+		void Start()
+		{
 			BuildCards();
 
 			ModdingUtils.Utils.Cards.instance.AddCardValidationFunction(OwlCardValidation);
@@ -84,7 +81,34 @@ namespace OwlCards
 
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 			GameModeManager.AddHook(GameModeHooks.HookPointEnd, TrackPointWinners);
-        }
+			Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
+		}
+
+		private void OnHandShakeCompleted()
+		{
+			if (PhotonNetwork.IsMasterClient)
+				NetworkingManager.RPC_Others(typeof(OwlCards), nameof(SyncSettings),
+					new object[] {
+						new float[]
+						{
+							soulGainedPerRound.Value,
+							soulGainedPerPointWon.Value,
+							soulOnGameStart.Value,
+							rerollSoulCost.Value,
+							extraPickSoulCost.Value
+						}
+					});
+		}
+
+		[UnboundRPC]
+		private static void SyncSettings(float[] settings)
+		{
+			instance.soulGainedPerRound.Value = settings[0];
+			instance.soulGainedPerPointWon.Value = settings[1];
+			instance.soulOnGameStart.Value = settings[2];
+			instance.rerollSoulCost.Value = settings[3];
+			instance.extraPickSoulCost.Value = settings[4];
+		}
 
 		private IEnumerator TrackPointWinners(IGameModeHandler gm)
 		{
@@ -113,28 +137,29 @@ namespace OwlCards
 			//CustomCard.BuildCard<Cards.Lethe>();
 
 			// Debug/Test
+			/*
 			CustomCard.BuildCard<Cards.Soul>();
 			CustomCard.BuildCard<Cards.Soulless>();
+			*/
 
 			// Should be ok
-            CustomCard.BuildCard<Cards.SoulLeech>();
-            CustomCard.BuildCard<Cards.FeedMe>();
-            CustomCard.BuildCard<Cards.FunKiller>();
-            CustomCard.BuildCard<Cards.LastHitter>();
+			CustomCard.BuildCard<Cards.SoulLeech>();
+			CustomCard.BuildCard<Cards.FeedMe>();
+			CustomCard.BuildCard<Cards.FunKiller>();
+			CustomCard.BuildCard<Cards.LastHitter>();
 
 			// TODO need to be tested
-            CustomCard.BuildCard<Cards.SoulExhaustion>();
+			CustomCard.BuildCard<Cards.SoulExhaustion>();
+
 			//gives a legendary card but gives a reroll to everyone else
 			CustomCard.BuildCard<Cards.CorruptedPower>();
+			//gives a random low card but you earn soul
+			CustomCard.BuildCard<Cards.Dedication>();
 
 
 			//gives a random strong card but gives soul to others
 			//CustomCard.BuildCard<Cards.Soul>();
 
-
-			//gives a random low card but you earn soul
-			//CustomCard.BuildCard<Cards.Soul>();
-			
 			//trade soul for random strong card
 			//CustomCard.BuildCard<Cards.Soul>();
 
@@ -193,7 +218,7 @@ namespace OwlCards
 			var pairs = newSoulValues.ToArray();
 			int[] playerIDs = pairs.Select(p => p.Key).ToArray();
 			float[] souls = pairs.Select(p => p.Value).ToArray();
-			CharacterStatModifiersOwlCardsData.UpdateSoul(playerIDs, souls);
+			OwlCardsData.UpdateSoul(playerIDs, souls);
 
 			pointWinnersID.Clear();
 			Log("End of round total points earned with Points won: " + soulEarnedWithPoints);
@@ -211,5 +236,5 @@ namespace OwlCards
 			UnityEngine.Debug.Log(LogPrefix + msg);
 			*/
 		}
-    }
+	}
 }

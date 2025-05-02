@@ -50,7 +50,7 @@ namespace OwlCards.Logic
 				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulToSteal,
 				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul - soulToSteal
 				};
-				CharacterStatModifiersOwlCardsData.UpdateSoul(playerIDs, newSouls);
+				OwlCardsData.UpdateSoul(playerIDs, newSouls);
 
 				soulLeftToStealThisPoint[damagedPlayer.playerID] -= soulToSteal;
 

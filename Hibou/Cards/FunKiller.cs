@@ -1,4 +1,5 @@
-﻿using OwlCards.Extensions;
+﻿using ModdingUtils.Extensions;
+using OwlCards.Extensions;
 using Photon.Pun;
 
 namespace OwlCards.Cards
@@ -21,7 +22,7 @@ namespace OwlCards.Cards
 				for (int i = 0; i < playersIDs.Length; i++)
 				{
 					int playerID = PlayerManager.instance.players[i].playerID;
-					float soul = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats).Soul;
+					float soul = OwlCardsData.GetData(playerID).Soul;
 					if (playerID == player.playerID)
 						soul -= 2f;
 					else
@@ -30,7 +31,7 @@ namespace OwlCards.Cards
 					playersIDs[i] = playerID;
 					souls[i] = soul;
 				}
-				CharacterStatModifiersOwlCardsData.UpdateSoul(playersIDs, souls);
+				OwlCardsData.UpdateSoul(playersIDs, souls);
 
 			RerollButton.instance.AddReroll(new int[] { player.playerID }, new int[] {
 				Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).Rerolls + 1

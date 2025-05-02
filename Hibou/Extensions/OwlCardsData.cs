@@ -7,7 +7,7 @@ using UnboundLib;
 namespace OwlCards.Extensions
 {
 	[Serializable]
-	public class CharacterStatModifiersOwlCardsData
+	public class OwlCardsData
 	{
 		private float _soul;
 		public float Soul
@@ -35,7 +35,7 @@ namespace OwlCards.Extensions
 				int playerID = playersIDs[i];
 				float newSoulValue = newSoulValues[i];
 
-				CharacterStatModifiersOwlCardsData data = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
+				OwlCardsData data = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
 				data.Soul = newSoulValue;
 			}
 		}
@@ -43,15 +43,23 @@ namespace OwlCards.Extensions
 		public static void UpdateSoul(int[] playersIDs, float[] newSoulValues)
 		{
 			object[] obj = { playersIDs, newSoulValues };
-			NetworkingManager.RPC(typeof(CharacterStatModifiersOwlCardsData), nameof(UpdateSoul_RPC), obj);
+			NetworkingManager.RPC(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
 		}
 		public static void UpdateSoul(int playerID, float newSoulValue)
 		{
 			UpdateSoul(new int[] { playerID }, new float[] { newSoulValue });
 		}
+		public static OwlCardsData GetData(int playerID)
+		{
+			return GetData(Utils.GetPlayerWithID(playerID));
+		}
 
+		public static OwlCardsData GetData(Player player)
+		{
+			return CharacterStatModifiersExtension.GetAdditionalData(player.data.stats);
+		}
 
-		public CharacterStatModifiersOwlCardsData()
+		public OwlCardsData()
 		{
 			_soul = OwlCards.instance.soulOnGameStart.Value;
 			_rerolls = 0;
@@ -60,15 +68,15 @@ namespace OwlCards.Extensions
 
 	public static class CharacterStatModifiersExtension
 	{
-		public static readonly ConditionalWeakTable<CharacterStatModifiers, CharacterStatModifiersOwlCardsData> data =
-			new ConditionalWeakTable<CharacterStatModifiers, CharacterStatModifiersOwlCardsData>();
+		public static readonly ConditionalWeakTable<CharacterStatModifiers, OwlCardsData> data =
+			new ConditionalWeakTable<CharacterStatModifiers, OwlCardsData>();
 
-		public static CharacterStatModifiersOwlCardsData GetAdditionalData(this CharacterStatModifiers statModifiers)
+		public static OwlCardsData GetAdditionalData(this CharacterStatModifiers statModifiers)
 		{
 			return data.GetOrCreateValue(statModifiers);
 		}
 
-		public static void AddData(this CharacterStatModifiers statModifiers, CharacterStatModifiersOwlCardsData value)
+		public static void AddData(this CharacterStatModifiers statModifiers, OwlCardsData value)
 		{
 			try
 			{
@@ -83,15 +91,15 @@ namespace OwlCards.Extensions
 	{
 		private static void Prefix(CharacterStatModifiers __instance)
 		{
-			CharacterStatModifiersOwlCardsData additionalData = __instance.GetAdditionalData();
+			OwlCardsData additionalData = __instance.GetAdditionalData();
 
 			if (additionalData.Soul != OwlCards.instance.soulOnGameStart.Value)
 			{
-				var soulPropertySetter = AccessTools.PropertySetter(typeof(CharacterStatModifiersOwlCardsData), "Soul");
+				var soulPropertySetter = AccessTools.PropertySetter(typeof(OwlCardsData), "Soul");
 				soulPropertySetter.Invoke(additionalData, new object[] {OwlCards.instance.soulOnGameStart.Value});
 			}
 
-			var rerollsField = AccessTools.Field(typeof(CharacterStatModifiersOwlCardsData), "_rerolls");
+			var rerollsField = AccessTools.Field(typeof(OwlCardsData), "_rerolls");
 			rerollsField.SetValue(additionalData, 0);
 		}
 	}

@@ -37,6 +37,12 @@
     <Reference Include="PhotonUnityNetworking">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\ROUNDS\Rounds_Data\Managed\PhotonUnityNetworking.dll</HintPath>
     </Reference>
+    <Reference Include="Rarity Bundle">
+      <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\CrazyCoders-RarityBundle\Rarity Bundle.dll</HintPath>
+    </Reference>
+    <Reference Include="RarityLib">
+      <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\Root-RarityLib\RarityLib.dll</HintPath>
+    </Reference>
     <Reference Include="UnboundLib">
       <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\willis81808-UnboundLib\UnboundLib.dll</HintPath>
     </Reference>
@@ -73,7 +79,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\Unknown-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\Desktop\ROUNDS-Client\BepInEx\plugins\Unknown-OwlCards&quot;&#xD;&#xA;start $(ProjectDir)..\launchMultiplayerTest.bat&#xD;&#xA;" />
+    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\Desktop\ROUNDS-Client\BepInEx\plugins\Unknown-OwlCards&quot;&#xD;&#xA;start $(ProjectDir)..\launchMultiplayerTest.bat&#xD;&#xA;" />
   </Target>
 
 </Project>
