@@ -108,6 +108,19 @@ namespace OwlCards.UI
 				backgroundImage.color = fillImage.color;
 				fillImage.color = new Color(1f, 0.58f, 0f, 1f);
 			}
+
+			Color inactiveColor = new Color(0.42f, 0.42f, 0.42f, 1f);
+			Color activeBlockColor = new Color(0.22f, 0.91f, 0.91f, 1f);
+			Color activeFireColor = new Color(1f, 0.51f, 0.33f, 1f);
+
+			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value +" soul)</i>";
+			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value +" soul)</i>";
+
+			soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : activeBlockColor;
+			soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : activeFireColor;
+
+			soulFill.transform.GetChild(1).GetComponentInChildren<Text>().text = blockDisplayedMsg; 
+			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg; 
 		}
 
 		public void BuildFillUI(Player player)

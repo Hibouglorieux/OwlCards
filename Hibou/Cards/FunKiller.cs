@@ -1,6 +1,7 @@
 ﻿using ModdingUtils.Extensions;
 using OwlCards.Extensions;
 using Photon.Pun;
+using System.Linq;
 
 namespace OwlCards.Cards
 {
@@ -9,6 +10,8 @@ namespace OwlCards.Cards
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			conditions[GetTitle()] = (float soul) => { return soul >= 2; };
+			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
+				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.allowMultiple = false;
 			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
@@ -33,9 +36,7 @@ namespace OwlCards.Cards
 				}
 				OwlCardsData.UpdateSoul(playersIDs, souls);
 
-			RerollButton.instance.AddReroll(new int[] { player.playerID }, new int[] {
-				Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).Rerolls + 1
-			});
+			RerollButton.instance.Add1Reroll(player.playerID);
 			}
 			//Edits values on player when card is selected
 		}

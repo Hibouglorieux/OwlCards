@@ -14,6 +14,8 @@ using System.Linq;
 using OwlCards.Cards;
 using OwlCards.Extensions;
 using Photon.Pun;
+using UnboundLib.Utils;
+using RarityLib.Utils;
 
 namespace OwlCards
 {
@@ -49,8 +51,6 @@ namespace OwlCards
 		public ConfigEntry<float> extraPickSoulCost;
 		private List<int[]> pointWinnersID = new List<int[]>();
 
-		int tmp;
-
 		void Awake()
 		{
 			instance = this;
@@ -81,7 +81,25 @@ namespace OwlCards
 
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 			GameModeManager.AddHook(GameModeHooks.HookPointEnd, TrackPointWinners);
+
 			Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
+			GameModeManager.AddHook(GameModeHooks.HookGameStart, OnGameStart, GameModeHooks.Priority.High);
+		}
+
+		private IEnumerator OnGameStart(IGameModeHandler handler)
+		{
+			OwlCardCategory.InitializeRarityCategories();
+			Card[] cards = CardManager.cards.Values.ToArray();
+
+			//Add rarityCategories 
+            foreach (var card in cards)
+            {
+				if (!card.cardInfo.categories.Contains(OwlCardCategory.rarityCategories[card.cardInfo.rarity]))
+				{
+					card.cardInfo.categories = card.cardInfo.categories.Append(OwlCardCategory.rarityCategories[card.cardInfo.rarity]).ToArray();
+				}
+            }
+            yield break;
 		}
 
 		private void OnHandShakeCompleted()
@@ -233,5 +251,9 @@ namespace OwlCards
 			UnityEngine.Debug.Log(LogPrefix + msg);
 			*/
 		}
+	}
+	internal class OwlCardsException : Exception
+	{
+		public OwlCardsException(string msg) : base(msg){}
 	}
 }

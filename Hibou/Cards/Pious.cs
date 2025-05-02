@@ -1,24 +1,20 @@
-﻿using ModdingUtils.Extensions;
+﻿using RarityBundle;
 using UnityEngine;
-using Photon.Pun;
-using RarityBundle;
 using RarityLib.Utils;
+using Photon.Pun;
+using ModdingUtils.Extensions;
+using OwlCards.Extensions;
+using System.Linq;
 
 namespace OwlCards.Cards
 {
-	internal class CorruptedPower : AOwlCard
+	internal class Pious : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			//active only if at least one epic card is available
-			conditions[GetTitle()] = (float _) => {
-				foreach (CardInfo info in ModdingUtils.Utils.Cards.active)
-				{
-					if (info.rarity == Rarities.Epic)
-						return true;
-				}
-				return false;
-				};
+			conditions[GetTitle()] = (float soul) => { return soul >= 3; };
+			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
+				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
@@ -26,22 +22,19 @@ namespace OwlCards.Cards
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
-				int[] othersIDs = Utils.GetOtherPlayersIDs(player.playerID);
-				RerollButton.instance.AddReroll(othersIDs);
+				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul - 3);
+				RerollButton.instance.Add1Reroll(player.playerID);
 			}
 
-			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
-				(cardInfo, player, gun, gunAmmo, data, health, gravity, block, characterStats) => {
-					return RarityUtils.GetRarityData(cardInfo.rarity).calculatedRarity
-					<= RarityUtils.GetRarityData(Rarities.Epic).calculatedRarity;
-				}
-				);
+			CardCategory[] blacklistedCategories = OwlCardCategory.GetRarityCategories(Rarities.Exotic, Rarities.Rare, true);
+			for (int i = 0; i < blacklistedCategories.Length; i++)
+				OwlCards.Log(blacklistedCategories[i].name);
 
-			ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, randomCard, addToCardBar: true);
-			ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, randomCard);
+			ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(characterStats).blacklistedCategories.AddRange(blacklistedCategories);
+
+			OwlCards.Log("added");
 			//Edits values on player when card is selected
 		}
-
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			//Run when the card is removed from the player
@@ -49,13 +42,13 @@ namespace OwlCards.Cards
 
 		protected override string GetTitle()
 		{
-			return "Corrupted Power";
+			return "Pious";
 		}
 		protected override string GetDescription()
 		{
-			return "Acquire a random " +
-				RarityToColorString(Rarities.Epic) +
-				" or rarer card";
+			return "You get to pick a card among " +
+				RarityToColorString(Rarities.Exotic) +
+				" or " + RarityToColorString(Rarities.Rare) + " cards";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -64,8 +57,8 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = false,
-					stat = "Pick for everyone else",
-					amount = "+1",
+					stat = "Soul",
+					amount = "-3",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
 			};
@@ -73,11 +66,11 @@ namespace OwlCards.Cards
 
 		protected override GameObject GetCardArt()
 		{
-			return GetCardArt("C_CorruptedPower");
+			return GetCardArt("C_Pious");
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Rare;
+			return Rarities.Common;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

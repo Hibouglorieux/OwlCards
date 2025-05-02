@@ -81,7 +81,7 @@ namespace OwlCards
 							Reroll(pickrID, OwlCards.instance.rerollSoulCost.Value);
 							break;
 						}
-						if (((OneAxisInputControl)(watchedActions[i].Fire)).WasPressed && currentSoul > OwlCards.instance.extraPickSoulCost.Value)
+						if (((OneAxisInputControl)(watchedActions[i].Fire)).WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value)
 						{
 							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
 							int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
@@ -166,6 +166,11 @@ namespace OwlCards
 			NetworkingManager.RPC(typeof(RerollButton), nameof(UpdateRerollValue_RPC), data);
 		}
 
+		public void Add1Reroll(int playerID)
+		{
+			AddReroll(new int[] { playerID });
+		}
+
 		/// <summary>
 		/// This method is called to reroll cards displayed without picking a card
 		/// </summary>
@@ -176,7 +181,7 @@ namespace OwlCards
 		{
 			OwlCardsData.UpdateSoul(pickrID,
 			CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - soulUsed);
-			AddReroll(new int[] { pickrID });
+			Add1Reroll(pickrID);
 			if (PhotonNetwork.OfflineMode)
 			{
 				PickCard(cardToPick);
