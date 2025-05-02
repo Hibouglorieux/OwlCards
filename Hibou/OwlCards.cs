@@ -155,19 +155,16 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.CorruptedPower>();
 			//gives a random low card but you earn soul
 			CustomCard.BuildCard<Cards.Dedication>();
-
-
-			//gives a random strong card but gives soul to others
-			//CustomCard.BuildCard<Cards.Soul>();
-
 			//trade soul for random strong card
-			//CustomCard.BuildCard<Cards.Soul>();
+			CustomCard.BuildCard<Cards.Bargain>();
+			//gives a random strong card but gives soul to others
+			CustomCard.BuildCard<Cards.OpenBar>();
+			//remove X soul and instead have a good draw
+			CustomCard.BuildCard<Cards.Pious>();
 
 			//trade random curse for some soul
 			//CustomCard.BuildCard<Cards.Soul>();
 
-			//remove X soul and instead have a good draw
-			//CustomCard.BuildCard<Cards.Soul>();
 
 		}
 
