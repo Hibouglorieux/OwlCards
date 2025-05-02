@@ -20,5 +20,20 @@ namespace OwlCards
 
 			return null;
 		}
+
+		public static int[] GetOtherPlayersIDs(int myPlayerID)
+		{
+			int[] othersIDs = new int[PlayerManager.instance.players.Count - 1];
+
+			int i = 0;
+			foreach (Player otherPlayer in PlayerManager.instance.players.ToArray())
+			{
+				if (otherPlayer.playerID != myPlayerID)
+				{
+					othersIDs[i++] = otherPlayer.playerID;
+				}
+			}
+			return othersIDs;
+		}
 	}
 }

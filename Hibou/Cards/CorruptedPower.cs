@@ -2,6 +2,7 @@
 using UnityEngine;
 using Photon.Pun;
 using RarityBundle;
+using RarityLib.Utils;
 
 namespace OwlCards.Cards
 {
@@ -16,24 +17,15 @@ namespace OwlCards.Cards
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
-				int[] IDsWithReroll = new int[PlayerManager.instance.players.Count - 1];
-
-				int i = 0;
-				foreach (Player otherPlayer in PlayerManager.instance.players.ToArray())
-				{
-					if (otherPlayer.playerID != player.playerID)
-					{
-						IDsWithReroll[i++] = otherPlayer.playerID;
-					}
-				}
-				RerollButton.instance.AddReroll(IDsWithReroll);
+				int[] othersIDs = Utils.GetOtherPlayersIDs(player.playerID);
+				RerollButton.instance.AddReroll(othersIDs);
 			}
 
 			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
 
 				(cardInfo, player, gun, gunAmmo, data, health, gravity, block, characterStats) => {
-					return RarityLib.Utils.RarityUtils.GetRarityData(cardInfo.rarity).calculatedRarity
-					<= RarityLib.Utils.RarityUtils.GetRarityData(Rarities.Epic).calculatedRarity;
+					return RarityUtils.GetRarityData(cardInfo.rarity).calculatedRarity
+					<= RarityUtils.GetRarityData(Rarities.Epic).calculatedRarity;
 				}
 				);
 
@@ -53,7 +45,9 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Acquire random Epic or rarer card";
+			return "Acquire a random " +
+				RarityToColorString(Rarities.Epic) +
+				" or rarer card";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -62,7 +56,7 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = false,
-					stat = "Pick to everyone else",
+					stat = "Pick for everyone else",
 					amount = "+1",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}

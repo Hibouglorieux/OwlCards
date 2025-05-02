@@ -66,7 +66,7 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = true,
-					stat = "Others Souls",
+					stat = "Others Soul",
 					amount = "-0.5",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}

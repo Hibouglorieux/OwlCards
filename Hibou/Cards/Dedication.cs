@@ -2,6 +2,7 @@
 using Photon.Pun;
 using RarityBundle;
 using UnityEngine;
+using ModdingUtils.Extensions;
 
 namespace OwlCards.Cards
 {
@@ -9,6 +10,7 @@ namespace OwlCards.Cards
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
+			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -40,7 +42,9 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Gives you a random common card";
+			return "Gives you a random " +
+				RarityToColorString(Rarities.Common) + 
+				" card";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
