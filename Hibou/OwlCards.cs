@@ -41,7 +41,7 @@ namespace OwlCards
 
 		public static OwlCards instance { get; private set; }
 
-		public readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("firstmodtest", typeof(OwlCards).Assembly);
+		public readonly AssetBundle Bundle = Jotunn.Utils.AssetUtils.LoadAssetBundleFromResources("owlcards", typeof(OwlCards).Assembly);
 
 		public ConfigEntry<float> soulOnGameStart;
 		public ConfigEntry<float> soulGainedPerRound;
@@ -60,7 +60,7 @@ namespace OwlCards
 			soulOnGameStart = Config.Bind(ModName, nameof(soulOnGameStart), 1.0f, "How much soul you have when a game starts");
 
 			rerollSoulCost = Config.Bind(ModName, nameof(rerollSoulCost), 1.0f, "how much soul does it cost to reroll");
-			extraPickSoulCost = Config.Bind(ModName, nameof(extraPickSoulCost), 3.0f, "how much soul does it cost to do an extra pick");
+			extraPickSoulCost = Config.Bind(ModName, nameof(extraPickSoulCost), 4.0f, "how much soul does it cost to do an extra pick");
 
 			// Use this to call any harmony patch files your mod may have
 			var harmony = new Harmony(ModId);
@@ -155,20 +155,23 @@ namespace OwlCards
 			//CustomCard.BuildCard<Cards.Lethe>();
 
 			// Debug/Test
-			/*
-			CustomCard.BuildCard<Cards.Soul>();
-			CustomCard.BuildCard<Cards.Soulless>();
-			*/
+
+#if DEBUG
+			//CustomCard.BuildCard<Cards.Soul>();
+			//CustomCard.BuildCard<Cards.Soulless>();
+#endif
 
 			// Should be ok
 			CustomCard.BuildCard<Cards.SoulLeech>();
 			CustomCard.BuildCard<Cards.FeedMe>();
-			CustomCard.BuildCard<Cards.FunKiller>();
 			CustomCard.BuildCard<Cards.LastHitter>();
+			CustomCard.BuildCard<Cards.Resolution>();
 
 			// TODO need to be tested
 			CustomCard.BuildCard<Cards.SoulExhaustion>();
 
+			//Random/give other cards
+			CustomCard.BuildCard<Cards.FunKiller>();
 			//gives a legendary card but gives a reroll to everyone else
 			CustomCard.BuildCard<Cards.CorruptedPower>();
 			//gives a random low card but you earn soul
@@ -180,7 +183,11 @@ namespace OwlCards
 			//remove X soul and instead have a good draw
 			CustomCard.BuildCard<Cards.Pious>();
 
-			//trade random curse for some soul
+			// trade random curse for some soul
+			// todo later with softdependancy of curses
+			//CustomCard.BuildCard<Cards.Soul>();
+
+			// base + move speed, touching a player slows him + steal soul
 			//CustomCard.BuildCard<Cards.Soul>();
 
 
@@ -247,9 +254,9 @@ namespace OwlCards
 
 		static public void Log(string msg)
 		{
-			/*
+#if DEBUG
 			UnityEngine.Debug.Log(LogPrefix + msg);
-			*/
+#endif
 		}
 	}
 	internal class OwlCardsException : Exception

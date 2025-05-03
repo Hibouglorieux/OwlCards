@@ -9,7 +9,7 @@ namespace OwlCards.Cards
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			conditions[GetTitle()] = (float soul) => { return soul >= 2; };
+			conditions[GetTitle()] = (float soul) => { return soul >= 1.5f && PlayerManager.instance.players.Count > 3; };
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.allowMultiple = false;
@@ -61,13 +61,13 @@ namespace OwlCards.Cards
 				{
 					positive = false,
 					stat = "Soul",
-					amount = "-2",
+					amount = "-1.5",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				},
 				new CardInfoStat()
 				{
 					positive = true,
-					stat = "Others Soul",
+					stat = "Others' Souls",
 					amount = "-0.5",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
@@ -82,7 +82,7 @@ namespace OwlCards.Cards
 		*/
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Common;
+			return CardInfo.Rarity.Uncommon;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

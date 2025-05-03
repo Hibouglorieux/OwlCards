@@ -16,25 +16,27 @@ namespace OwlCards
 
 		public static void CreateMenu()
 		{
-			Unbound.RegisterMenu(OwlCards.ModName, () => { }, CreateMenuUI, null, true);
+			Unbound.RegisterMenu(OwlCards.ModName, () => { }, CreateMenuUI, null, false);
 		}
 
 		private static void CreateMenuUI(GameObject menu)
 		{
 			MenuHandler.CreateText(OwlCards.ModName + " Options", menu, out TextMeshProUGUI _);
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("reroll points passively earned per round", menu, 30, 0, 2, OwlCards.instance.soulGainedPerRound.Value,
+			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
+			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
+
+			MenuHandler.CreateSlider("Soul points passively earned per round (not applied to round winner)", menu, 30, 0, 2, OwlCards.instance.soulGainedPerRound.Value,
 				(float newValue) => { OwlCards.instance.soulGainedPerRound.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("Extra reroll earned per point won (not applied to round winner)(should it ?)", menu, 30, 0, 1,
+			MenuHandler.CreateSlider("Extra soul gained per point won (not applied to round winner)", menu, 30, 0, 1,
 				OwlCards.instance.soulGainedPerPointWon.Value,
 				(float newValue) => { OwlCards.instance.soulGainedPerPointWon.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("Starting rerolls", menu, 30, 0, 5,
+			MenuHandler.CreateSlider("Starting Soul", menu, 30, 0, 5,
 				OwlCards.instance.soulOnGameStart.Value,
 				(float newValue) => { OwlCards.instance.soulOnGameStart.Value = newValue; }, out UnityEngine.UI.Slider _);
 
@@ -44,7 +46,7 @@ namespace OwlCards
 				(float newValue) => { OwlCards.instance.rerollSoulCost.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("Cost of pick + reroll (fire button)", menu, 30, 1, 10,
+			MenuHandler.CreateSlider("Cost of extra pick (fire button)", menu, 30, 1, 10,
 				OwlCards.instance.extraPickSoulCost.Value,
 				(float newValue) => { OwlCards.instance.extraPickSoulCost.Value = newValue; }, out UnityEngine.UI.Slider _, true);
 		}

@@ -11,7 +11,7 @@ namespace OwlCards.Cards
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			gun.projectileSpeed = 1.3f;
+			gun.projectileSpeed = 1.15f;
 			gun.attackSpeed = 1.25f;
 			cardInfo.allowMultiple = false;
 
@@ -42,7 +42,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Your bullets exhaust your target, slowing them down the less reroll they have.";
+			return "Your bullets exhaust your target, slowing them down the less Soul they have.";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -52,7 +52,7 @@ namespace OwlCards.Cards
 				{
 					positive = true,
 					stat = "Projectile Speed",
-					amount = "+30%",
+					amount = "+15%",
 					simepleAmount = CardInfoStat.SimpleAmount.aLittleBitOf
 				},
 				new CardInfoStat()
@@ -72,7 +72,7 @@ namespace OwlCards.Cards
 		*/
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Common;
+			return CardInfo.Rarity.Uncommon;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

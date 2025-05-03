@@ -58,8 +58,6 @@ namespace OwlCards.UI
 		}
 		private IEnumerator ClearUI(IGameModeHandler handler)
 		{
-			RemoveCounters();
-			RemoveFill();
 			RemoveCanvas();
 			yield break;
 		}
@@ -82,7 +80,7 @@ namespace OwlCards.UI
 			Image fillImage = background.GetChild(0).GetComponent<Image>();
 			Text text = background.GetChild(1).GetComponent<Text>();
 
-			text.text = String.Format(soulValue.ToString("F2") + " Soul");
+			text.text = String.Format(soulValue.ToString("G3") + " Soul");
 			fillImage.fillAmount = (soulValue > 1 ? soulValue - (Mathf.Floor(soulValue)) : soulValue);
 
 			Image backgroundImage = background.GetComponent<Image>();
@@ -123,8 +121,8 @@ namespace OwlCards.UI
 			Color activeBlockColor = new Color(0.22f, 0.91f, 0.91f, 1f);
 			Color activeFireColor = new Color(1f, 0.51f, 0.33f, 1f);
 
-			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value +" soul)</i>";
-			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value +" soul)</i>";
+			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value.ToString("G3") +" soul)</i>";
+			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value.ToString("G3") +" soul)</i>";
 
 			soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : activeBlockColor;
 			soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : activeFireColor;
@@ -138,6 +136,8 @@ namespace OwlCards.UI
 			//already existant
 			if (soulFill)
 				return;
+
+			playerSoulFillID = -1;
 			GameObject assetFill = OwlCards.instance.Bundle.LoadAsset<GameObject>("OC_UI_SoulFill");
 			if (!canvas)
 				BuildCanvas();
@@ -149,14 +149,11 @@ namespace OwlCards.UI
 		{
 			// this 'should' be done at playerPickStart hook
 			// however CardChoice.instance.pickrID isn't set yet
-			if (soulFill && CardChoice.instance.pickrID != -1)
+			if (soulFill && CardChoice.instance.pickrID != -1 && playerSoulFillID != CardChoice.instance.pickrID)
 			{
-				if (playerSoulFillID != CardChoice.instance.pickrID)
-				{
-					playerSoulFillID = CardChoice.instance.pickrID;
-					soulFill.SetActive(true);
-					UpdateFillUI(OwlCardsData.GetData(playerSoulFillID).Soul);
-				}
+				playerSoulFillID = CardChoice.instance.pickrID;
+				soulFill.SetActive(true);
+				UpdateFillUI(OwlCardsData.GetData(playerSoulFillID).Soul);
 			}
 		}
 
@@ -233,9 +230,7 @@ namespace OwlCards.UI
 			if (!soulFill)
 				return;
 
-			Player player = Utils.GetPlayerWithID(playerSoulFillID);
-			if (player)
-				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).soulChanged -= UpdateFillUI;
+			playerSoulFillID = -1;
 			Destroy(soulFill);
 			soulFill = null;
 		}

@@ -1,40 +1,41 @@
-﻿using OwlCards.Logic;
-using Photon.Pun;
-using UnboundLib;
+﻿using ModdingUtils.Extensions;
+using RarityBundle;
+using RarityLib.Utils;
 using UnityEngine;
+using Photon.Pun;
+using OwlCards.Extensions;
 
 namespace OwlCards.Cards
 {
-	internal class FeedMe : AOwlCard
+	internal class Resolution : AOwlCard
 	{
-		public const float soulPointsToGainPerPoint = 0.3f;
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			statModifiers.health = 1.5f;
-			cardInfo.allowMultiple = false;
+			statModifiers.regen = 5;
+			statModifiers.health = 1.1f;
+			statModifiers.secondsToTakeDamageOver = 1;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
-				player.gameObject.GetOrAddComponent<FeedMe_Logic>();
+			{
+				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul + 0.5f);
+			}
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
-			FeedMe_Logic component = player.gameObject.GetComponent<FeedMe_Logic>();
-			if (component)
-				Destroy(component);
 			//Run when the card is removed from the player
 		}
 
 		protected override string GetTitle()
 		{
-			return "Feed Me";
+			return "Resolution";
 		}
 		protected override string GetDescription()
 		{
-			return "Learn how to assimilate bullets that hit you to strengthen your soul";
+			return "";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -44,7 +45,28 @@ namespace OwlCards.Cards
 				{
 					positive = true,
 					stat = "Health",
-					amount = "+50%",
+					amount = "+10%",
+					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
+				},
+				new CardInfoStat()
+				{
+					positive = true,
+					stat = "Regen",
+					amount = "+5",
+					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
+				},
+				new CardInfoStat()
+				{
+					positive = true,
+					stat = "Decay",
+					amount = "+1s",
+					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
+				},
+				new CardInfoStat()
+				{
+					positive = true,
+					stat = "Soul",
+					amount = "+0.5",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
 			};
@@ -52,16 +74,16 @@ namespace OwlCards.Cards
 
 		protected override GameObject GetCardArt()
 		{
-			return GetCardArt("C_FeedMe");
+			return GetCardArt("C_Resolution");
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Common;
+			return Rarities.Common;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
 		{
-			return CardThemeColor.CardThemeColorType.MagicPink;
+			return CardThemeColor.CardThemeColorType.DefensiveBlue;
 		}
 	}
 }

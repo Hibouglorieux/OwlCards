@@ -71,15 +71,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="D:\work\Unity\Projects\RoundsMod\Assets\AssetBundles\firstmodtest" Link="AssetsEmbedded\firstmodtest" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Cards\CardTemplate.cs" />
+    <EmbeddedResource Include="D:\work\Unity\Projects\RoundsMod\Assets\AssetBundles\owlcards" Link="AssetsEmbedded\owlcards" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\Desktop\ROUNDS-Client\BepInEx\plugins\Unknown-OwlCards&quot;&#xD;&#xA;start $(ProjectDir)..\launchMultiplayerTest.bat&#xD;&#xA;" />
   </Target>
+
+	<ItemGroup>
+		<None Include="Cards\Soul.cs" Condition=" '$(Configuration)' == 'Debug' " />
+		<None Include="Cards\Soulless.cs" Condition=" '$(Configuration)' == 'Debug' " />
+	</ItemGroup>
 
 </Project>

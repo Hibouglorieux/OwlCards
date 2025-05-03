@@ -12,7 +12,7 @@ namespace OwlCards.Cards
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			conditions[GetTitle()] = (float soul) => { return soul >= 3; };
+			conditions[GetTitle()] = (float soul) => { return soul >= 2; };
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.GetAdditionalData().canBeReassigned = false;
@@ -50,7 +50,7 @@ namespace OwlCards.Cards
 		{
 			return "You trade part of your soul for a random " + 
 				RarityToColorString(Rarities.Exotic) + 
-				" or higher card";
+				" or rarer card";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -60,7 +60,7 @@ namespace OwlCards.Cards
 				{
 					positive = false,
 					stat = "Soul",
-					amount = "-3",
+					amount = "-2",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
 			};

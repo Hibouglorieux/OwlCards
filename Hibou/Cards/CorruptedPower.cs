@@ -3,6 +3,7 @@ using UnityEngine;
 using Photon.Pun;
 using RarityBundle;
 using RarityLib.Utils;
+using System.Linq;
 
 namespace OwlCards.Cards
 {
@@ -19,6 +20,8 @@ namespace OwlCards.Cards
 				}
 				return false;
 				};
+			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
+				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
@@ -38,7 +41,7 @@ namespace OwlCards.Cards
 				);
 
 			ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, randomCard, addToCardBar: true);
-			ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, randomCard);
+			ModdingUtils.Utils.CardBarUtils.instance.ShowCard(player, randomCard);
 			//Edits values on player when card is selected
 		}
 

@@ -1,4 +1,5 @@
-﻿using OwlCards.Cards;
+﻿using ModdingUtils.RoundsEffects;
+using OwlCards.Cards;
 using OwlCards.Extensions;
 using System;
 using System.Collections;
@@ -9,7 +10,7 @@ using UnityEngine;
 
 namespace OwlCards.Logic
 {
-	internal class FeedMe_Logic : WasDealtDamageEffect
+	internal class FeedMe_Logic : WasHitEffect
 	{
 		Player player;
 		float soulLeftToGainThisPoint = FeedMe.soulPointsToGainPerPoint;

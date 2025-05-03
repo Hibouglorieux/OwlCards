@@ -37,7 +37,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Earn some souls whenever you make a kill";
+			return "Earn some Soul whenever you make a kill";
 		}
 		protected override CardInfoStat[] GetStats()
 		{

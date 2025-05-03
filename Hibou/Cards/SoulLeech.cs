@@ -13,7 +13,7 @@ namespace OwlCards.Cards
 		{
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 			statModifiers.lifeSteal = 0.2f;
-			gun.damage = 0.8f;
+			gun.damage = 0.85f;
 			cardInfo.allowMultiple = false;
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -41,7 +41,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Your bullets eat the soul of your foes, making yours grow in the process";
+			return "Your bullets steal Soul";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -58,7 +58,7 @@ namespace OwlCards.Cards
 				{
 					positive = false,
 					stat = "Damage",
-					amount = "-20%",
+					amount = "-15%",
 					simepleAmount = CardInfoStat.SimpleAmount.slightlyLower
 				}
 			};
@@ -72,7 +72,7 @@ namespace OwlCards.Cards
 		*/
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Common;
+			return CardInfo.Rarity.Uncommon;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
