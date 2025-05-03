@@ -7,7 +7,6 @@ namespace OwlCards.Cards
 {
 	internal class FeedMe : AOwlCard
 	{
-		public const float soulPointsToGainPerPoint = 0.3f;
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			statModifiers.health = 1.5f;
