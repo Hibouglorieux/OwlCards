@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OwlCards", "Hibou\OwlCards.csproj", "{C05721AE-6217-4535-BF38-C9BD63FF5806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OwlCards", "OwlCards\OwlCards.csproj", "{C05721AE-6217-4535-BF38-C9BD63FF5806}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
