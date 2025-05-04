@@ -36,8 +36,23 @@ namespace OwlCards
         {
             instance = this;
             GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.First);
+            GameModeManager.AddHook(GameModeHooks.HookGameStart, OnGameStart);
+            GameModeManager.AddHook(GameModeHooks.HookGameEnd, OnGameEnd);
         }
-        void OnDestroy()
+
+		private IEnumerator OnGameStart(IGameModeHandler gm)
+		{
+			specialDraws.Clear();
+			yield break;
+		}
+
+		private IEnumerator OnGameEnd(IGameModeHandler gm)
+		{
+			specialDraws.Clear();
+			yield break;
+		}
+
+		void OnDestroy()
         {
             GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls);
         }
