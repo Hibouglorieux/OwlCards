@@ -222,7 +222,6 @@ namespace OwlCards.UI
 			if (canvas)
 				Destroy(canvas);
 			canvas = null;
-			soulCounters = new Dictionary<int, GameObject>();
 		}
 
 		public void RemoveFill()

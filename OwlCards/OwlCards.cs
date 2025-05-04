@@ -8,14 +8,12 @@ using UnboundLib.GameModes;
 using UnboundLib.Networking;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
 using System;
 using System.Linq;
 using OwlCards.Cards;
 using OwlCards.Extensions;
 using Photon.Pun;
 using UnboundLib.Utils;
-using RarityLib.Utils;
 
 namespace OwlCards
 {
@@ -25,6 +23,9 @@ namespace OwlCards
 	[BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
+
+	//TODO Add CurseManager dependency so reroll/extra pick DOES NOT WORK during curse pick !!
+	//[BepInDependency("com.willuwontu.rounds.managers", BepInDependency.DependencyFlags.SoftDependency)]
 
 	// Declares our mod to Bepin
 	[BepInPlugin(ModId, ModName, Version)]
@@ -49,6 +50,7 @@ namespace OwlCards
 
 		public ConfigEntry<float> rerollSoulCost;
 		public ConfigEntry<float> extraPickSoulCost;
+
 		private List<int[]> pointWinnersID = new List<int[]>();
 
 		void Awake()
@@ -79,14 +81,14 @@ namespace OwlCards
 			gameObject.AddComponent<Reroll>();
 			gameObject.AddComponent<UI.Manager>();
 
+			Unbound.RegisterHandshake(ModId, OnHandshakeCompleted);
+
 			GameModeManager.AddHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 			GameModeManager.AddHook(GameModeHooks.HookPointEnd, TrackPointWinners);
-
-			Unbound.RegisterHandshake(ModId, OnHandShakeCompleted);
 			GameModeManager.AddHook(GameModeHooks.HookGameStart, OnGameStart, GameModeHooks.Priority.High);
 		}
 
-		private IEnumerator OnGameStart(IGameModeHandler handler)
+		private IEnumerator OnGameStart(IGameModeHandler gm)
 		{
 			OwlCardCategory.InitializeRarityCategories();
 			Card[] cards = CardManager.cards.Values.ToArray();
@@ -102,7 +104,7 @@ namespace OwlCards
             yield break;
 		}
 
-		private void OnHandShakeCompleted()
+		private void OnHandshakeCompleted()
 		{
 			if (PhotonNetwork.IsMasterClient)
 				NetworkingManager.RPC_Others(typeof(OwlCards), nameof(SyncSettings),
@@ -248,6 +250,7 @@ namespace OwlCards
 
 		void OnDestroy()
 		{
+			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, OnGameStart);
 			GameModeManager.RemoveHook(GameModeHooks.HookRoundEnd, UpdatePlayerResourcesRoundEnd);
 			GameModeManager.RemoveHook(GameModeHooks.HookPointEnd, TrackPointWinners);
 		}
