@@ -64,7 +64,7 @@ namespace OwlCards.Cards
 
 	static internal class OwlCardCategory
 	{
-		public static CardCategory modCategory = CustomCardCategories.instance.CardCategory(OwlCards.ModName);
+		public static CardCategory modCategory = CustomCardCategories.instance.CardCategory("__pack-" + OwlCards.ModInitials);
 		public static CardCategory soulCondition = CustomCardCategories.instance.CardCategory(OwlCards.ModName + "-SoulCondition");
 
 		public static Dictionary<CardInfo.Rarity, CardCategory> rarityCategories = new Dictionary<CardInfo.Rarity, CardCategory>();
