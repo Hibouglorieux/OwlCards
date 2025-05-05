@@ -161,17 +161,16 @@ namespace OwlCards.UI
 
 		void Update()
 		{
-			// don't show soul fill in pause menu
-			if (soulFill)
-				soulFill.SetActive(!EscapeMenuHandler.isEscMenu);
 			// this 'should' be done at playerPickStart hook
 			// however CardChoice.instance.pickrID isn't set yet
 			if (soulFill && CardChoice.instance.pickrID != -1 && playerSoulFillID != CardChoice.instance.pickrID)
 			{
 				playerSoulFillID = CardChoice.instance.pickrID;
-				soulFill.SetActive(true);
 				UpdateFillUI(OwlCardsData.GetData(playerSoulFillID).Soul);
 			}
+			// don't show soul fill in pause menu
+			if (soulFill && playerSoulFillID != -1)
+				soulFill.SetActive(!EscapeMenuHandler.isEscMenu);
 		}
 
 		public void BuildSoulCounters()

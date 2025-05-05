@@ -22,6 +22,7 @@ namespace OwlCards.Logic
 		{
 			if (!selfDamage)
 			{
+				//perhaps add diminishing return instead ?
 				float soulEarned = Mathf.Min(damage.magnitude, player.data.health) / 1000.0f;
 
 				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulEarned;

@@ -47,8 +47,8 @@ namespace OwlCards.Logic
 
 				int[] playerIDs = new int[2] { player.playerID, damagedPlayer.playerID };
 				float[] newSouls = new float[2] {
-				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulToSteal,
-				CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul - soulToSteal
+					CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulToSteal,
+					CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul - soulToSteal
 				};
 				OwlCardsData.UpdateSoul(playerIDs, newSouls);
 

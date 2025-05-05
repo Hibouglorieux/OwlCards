@@ -43,7 +43,8 @@ namespace OwlCards.Extensions
 		public static void UpdateSoul(int[] playersIDs, float[] newSoulValues)
 		{
 			object[] obj = { playersIDs, newSoulValues };
-			NetworkingManager.RPC(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
+			UpdateSoul_RPC(playersIDs, newSoulValues);
+			NetworkingManager.RPC_Others(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
 		}
 		public static void UpdateSoul(int playerID, float newSoulValue)
 		{

@@ -133,7 +133,6 @@ namespace OwlCards
             }
         }
 
-
         private IEnumerator ReplaceCards()
         {
             // Copied from  CardChoice.ReplaceCards (line 208)
@@ -155,6 +154,7 @@ namespace OwlCards
             CardChoice.instance.GetComponent<PhotonView>().RPC("RPCA_DonePicking", RpcTarget.All);
             isPlayingField.SetValue(CardChoice.instance, false);
         }
+
         private void PickCard(GameObject cardToPick)
         {
             CardChoice.instance.Pick(cardToPick, cardToPick == null);
@@ -179,7 +179,8 @@ namespace OwlCards
                 }
             }
             object[] data = { playersIDs, newRerollsValue };
-            NetworkingManager.RPC(typeof(Reroll), nameof(UpdateRerollValue_RPC), data);
+			UpdateRerollValue_RPC(playersIDs, newRerollsValue);
+            NetworkingManager.RPC_Others(typeof(Reroll), nameof(UpdateRerollValue_RPC), data);
         }
 
         public void Add1Reroll(int playerID)

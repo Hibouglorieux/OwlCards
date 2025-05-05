@@ -3,8 +3,9 @@
 release
 
 0.2.0 - unreleased
-Changed FeedMe rarity
+Changed FeedMe rarity from common to uncommon, removed soul gain limit
 Added option to remove ExtraPick
 Added compatibility with curses and removed bugs regarding curses
 fixed bug with customDraw
 fixed soul interraction and UI with EscapeMenu
+fixed Soul update bug when two updates occured at the same time
