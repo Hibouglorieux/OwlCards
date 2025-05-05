@@ -27,7 +27,7 @@ namespace OwlCards.Cards
 			}
 
 			CardCategory[] blacklistedCategories = OwlCardCategory.GetRarityCategories(Rarities.Exotic, Rarities.Rare, true);
-			Reroll.instance.AddSpecialDraw(player.playerID, 0, blacklistedCategories);
+			Reroll.instance.AddCustomDraw(player.playerID, 0, blacklistedCategories);
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)

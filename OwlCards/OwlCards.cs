@@ -17,15 +17,17 @@ using UnboundLib.Utils;
 
 namespace OwlCards
 {
-    // These are the mods required for our mod to work
-    [BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
+	// These are the mods required for our mod to work
+	[BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
 
 	//TODO Add CurseManager dependency so reroll/extra pick DOES NOT WORK during curse pick !!
-	//[BepInDependency("com.willuwontu.rounds.managers", BepInDependency.DependencyFlags.SoftDependency)]
+	[BepInDependency("com.willuwontu.rounds.managers", BepInDependency.DependencyFlags.SoftDependency)]
+	//TODO Add pickncards dependency for dynamic/temp handsize increase/decrease
+	[BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.SoftDependency)]
 
 	// Declares our mod to Bepin
 	[BepInPlugin(ModId, ModName, Version)]
@@ -50,6 +52,10 @@ namespace OwlCards
 
 		public ConfigEntry<float> rerollSoulCost;
 		public ConfigEntry<float> extraPickSoulCost;
+		public ConfigEntry<bool> bExtraPickActive;
+
+		public bool bCurseActivated { get; private set; }
+		public bool bPickNCards { get; private set;}
 
 		private List<int[]> pointWinnersID = new List<int[]>();
 
@@ -57,12 +63,17 @@ namespace OwlCards
 		{
 			instance = this;
 
+			bCurseActivated = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.willuwontu.rounds.managers");
+			bPickNCards = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("pykess.rounds.plugins.pickncards");
+
 			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
 			soulGainedPerPointWon = Config.Bind(ModName, nameof(soulGainedPerPointWon), 0.25f, "How much soul resource is earned passively each round");
 			soulOnGameStart = Config.Bind(ModName, nameof(soulOnGameStart), 1.0f, "How much soul you have when a game starts");
 
 			rerollSoulCost = Config.Bind(ModName, nameof(rerollSoulCost), 1.0f, "how much soul does it cost to reroll");
 			extraPickSoulCost = Config.Bind(ModName, nameof(extraPickSoulCost), 4.0f, "how much soul does it cost to do an extra pick");
+
+			bExtraPickActive = Config.Bind(ModName, nameof(bExtraPickActive), true, "Enable extra roll");
 
 			// Use this to call any harmony patch files your mod may have
 			var harmony = new Harmony(ModId);
@@ -135,7 +146,6 @@ namespace OwlCards
 			if (!(PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient))
 				yield break;
 
-			int[] newPointWinners = gm.GetPointWinners();
 			pointWinnersID.Add((int[])gm.GetPointWinners().Clone());
 		}
 

@@ -46,6 +46,10 @@ namespace OwlCards
 				(float newValue) => { OwlCards.instance.rerollSoulCost.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
+			MenuHandler.CreateToggle(OwlCards.instance.bExtraPickActive.Value, "Allow extra pick option", menu,
+				(bool newValue) => { OwlCards.instance.bExtraPickActive.Value = newValue; });
+
+			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
 			MenuHandler.CreateSlider("Cost of extra pick (fire button)", menu, 30, 1, 10,
 				OwlCards.instance.extraPickSoulCost.Value,
 				(float newValue) => { OwlCards.instance.extraPickSoulCost.Value = newValue; }, out UnityEngine.UI.Slider _, true);

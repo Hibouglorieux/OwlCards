@@ -37,6 +37,9 @@
     <Reference Include="PhotonUnityNetworking">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\ROUNDS\Rounds_Data\Managed\PhotonUnityNetworking.dll</HintPath>
     </Reference>
+    <Reference Include="PickNCards">
+      <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\Pykess-Pick_N_Cards\PickNCards.dll</HintPath>
+    </Reference>
     <Reference Include="Rarity Bundle">
       <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\CrazyCoders-RarityBundle\Rarity Bundle.dll</HintPath>
     </Reference>
@@ -64,6 +67,9 @@
     <Reference Include="UnityEngine.UIModule">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\ROUNDS\Rounds_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
+    <Reference Include="WillsWackyManagers">
+      <HintPath>..\..\..\..\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\willuwontu-WillsWackyManagers\WillsWackyManagers.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -76,7 +82,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;::xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\Desktop\ROUNDS-Client\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;if $(ConfigurationName) == Release xcopy /Y $(TargetPath) &quot;D:\work\RoundMods\$(ProjectName)\&quot;&#xD;&#xA;..start $(ProjectDir)..\..\launchROUNDS.bat&#xD;&#xA;" />
+    <Exec Command="xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Mod\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;::xcopy /Y $(TargetPath) &quot;C:\Users\natha\AppData\Roaming\Thunderstore Mod Manager\DataFolder\ROUNDS\profiles\Hibou\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;xcopy /Y $(TargetPath) &quot;C:\Users\natha\Desktop\ROUNDS-Client\BepInEx\plugins\HibouGlorieux-$(ProjectName)\&quot;&#xD;&#xA;if $(ConfigurationName) == Release xcopy /Y $(TargetPath) &quot;D:\work\RoundMods\$(ProjectName)\&quot;&#xD;&#xA;start $(ProjectDir)\..\..\launchROUNDS.bat&#xD;&#xA;" />
   </Target>
 
 	<ItemGroup>

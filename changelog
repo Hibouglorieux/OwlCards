@@ -1,0 +1,9 @@
+0.1.0
+
+release
+
+0.2.0
+Changed FeedMe rarity
+Added option to remove ExtraPick
+Added compatibility with curses and removed bugs regarding curses
+fixed bug with customDraw

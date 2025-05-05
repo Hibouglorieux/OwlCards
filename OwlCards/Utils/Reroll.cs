@@ -11,6 +11,7 @@ using UnboundLib.Networking;
 using OwlCards.Extensions;
 using UnboundLib;
 using System.ComponentModel.Design;
+using OwlCards.Dependencies;
 
 namespace OwlCards
 {
@@ -18,17 +19,17 @@ namespace OwlCards
     {
         static public Reroll instance = null;
 
-		public Dictionary<int, List<(int drawsUntilTriggered, CardCategory[] blacklist)>> specialDraws = new Dictionary<int, List<(int, CardCategory[])>>();
+		public Dictionary<int, List<(int drawsUntilTriggered, CardCategory[] blacklist)>> customDraws = new Dictionary<int, List<(int, CardCategory[])>>();
 
-		public void AddSpecialDraw(int playerID, int drawsUntilTriggered, CardCategory[] blacklist)
+		public void AddCustomDraw(int playerID, int drawsUntilTriggered, CardCategory[] blacklist)
 		{
-			if (specialDraws.ContainsKey(playerID))
-				specialDraws[playerID].Add((drawsUntilTriggered, blacklist));
+			if (customDraws.ContainsKey(playerID))
+				customDraws[playerID].Add((drawsUntilTriggered, blacklist));
 			else
 			{
 				List<(int, CardCategory[])> list = new List<(int, CardCategory[])>();
-				specialDraws.Add(playerID, list);
-				specialDraws[playerID].Add((drawsUntilTriggered, blacklist));
+				customDraws.Add(playerID, list);
+				customDraws[playerID].Add((drawsUntilTriggered, blacklist));
 			}
 		}
 
@@ -42,13 +43,13 @@ namespace OwlCards
 
 		private IEnumerator OnGameStart(IGameModeHandler gm)
 		{
-			specialDraws.Clear();
+			customDraws.Clear();
 			yield break;
 		}
 
 		private IEnumerator OnGameEnd(IGameModeHandler gm)
 		{
-			specialDraws.Clear();
+			customDraws.Clear();
 			yield break;
 		}
 
@@ -64,6 +65,15 @@ namespace OwlCards
             if (pickrID == -1)
                 return;
 
+			if (OwlCards.instance.bCurseActivated)
+			{
+				// If we're picking a curse disable reroll
+				if (CurseHandler.IsPickingCurse())
+				{
+					OwlCards.Log("IS PICKING CURSE");
+					return;
+				}
+			}
             var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
             bool isPlaying = (bool)isPlayingField.GetValue(CardChoice.instance);
 
@@ -71,8 +81,7 @@ namespace OwlCards
 
             if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
             {
-                PlayerActions[] watchedActions = null;
-                watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
+                PlayerActions[] watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
                 if (watchedActions != null)
                 {
                     for (int i = 0; i < watchedActions.Length; i++)
@@ -86,7 +95,7 @@ namespace OwlCards
                             RerollCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
                             break;
                         }
-                        if (watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value)
+                        if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value)
                         {
                             var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
                             int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
@@ -209,6 +218,7 @@ namespace OwlCards
             int pickrID = -1;
 			List<CardCategory> blacklist = new List<CardCategory>();
 			Player chosenPlayer = null;
+			//TODO issue: custom draw wait is affected by rerolls
             foreach (Player player in PlayerManager.instance.players.ToArray())
             {
                 CharacterStatModifiers stats = player.data.stats;
@@ -220,21 +230,29 @@ namespace OwlCards
 					chosenPlayer = player;
 
 					// get blacklist if needed
-					if (specialDraws.ContainsKey(pickrID))
+					if (customDraws.ContainsKey(pickrID))
 					{
-						List<(int drawsUntilTriggered, CardCategory[] blacklist)> specialDraw = specialDraws[pickrID];
-						for (int i = 0; i < specialDraw.Count; i++)
+						List<(int drawsUntilTriggered, CardCategory[] blacklist)> customDraw = customDraws[pickrID];
+						int priority = 1;
+						int indexChosen = -1;
+						// look into all custom draws for only one (DON'T MIX THEM)
+						for (int i = 0; i < customDraw.Count; i++)
 						{
-							if (specialDraw[i].drawsUntilTriggered == 0)
+							
+							// if there's multiple customDraws available pick only the most recent
+							if (customDraw[i].drawsUntilTriggered <= 0 && customDraw[i].drawsUntilTriggered < priority)
 							{
-								blacklist = specialDraw[i].blacklist.ToList();
-								specialDraw.RemoveAt(i);
-								break;
+								indexChosen = i;
+								priority = customDraw[i].drawsUntilTriggered;
 							}
-							else
-								specialDraw[i] = (specialDraw[i].drawsUntilTriggered - 1, specialDraw[i].blacklist);
+							// keep iterating as we want to the delay for all
+							customDraw[i] = (customDraw[i].drawsUntilTriggered - 1, customDraw[i].blacklist);
 						}
-						specialDraws[pickrID] = specialDraw;
+						if (indexChosen != -1)
+						{
+							blacklist = customDraw[indexChosen].blacklist.ToList();
+							customDraw.RemoveAt(indexChosen);
+						}
 					}
 
 					break;

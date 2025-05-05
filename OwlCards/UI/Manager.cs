@@ -1,4 +1,5 @@
 ﻿using OwlCards.Cards;
+using OwlCards.Dependencies;
 using OwlCards.Extensions;
 using System;
 using System.Collections;
@@ -121,11 +122,21 @@ namespace OwlCards.UI
 			Color activeBlockColor = new Color(0.22f, 0.91f, 0.91f, 1f);
 			Color activeFireColor = new Color(1f, 0.51f, 0.33f, 1f);
 
+			Color curseColor = new Color(0.6f, 0.09f, 0.71f, 1f);
+
 			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value.ToString("G3") +" soul)</i>";
 			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value.ToString("G3") +" soul)</i>";
 
-			soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : activeBlockColor;
-			soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : activeFireColor;
+			if (OwlCards.instance.bCurseActivated && CurseHandler.IsPickingCurse())
+			{
+				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : curseColor;
+				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : curseColor;
+			}
+			else
+			{
+				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : activeBlockColor;
+				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : activeFireColor;
+			}
 
 			soulFill.transform.GetChild(1).GetComponentInChildren<Text>().text = blockDisplayedMsg; 
 			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg; 
@@ -143,6 +154,9 @@ namespace OwlCards.UI
 				BuildCanvas();
 			soulFill = Instantiate(assetFill, canvas.transform);
 			soulFill.SetActive(false);
+			// disable extraroll
+			if (!OwlCards.instance.bExtraPickActive.Value)
+				soulFill.transform.GetChild(2).gameObject.SetActive(false);
 		}
 
 		void Update()
