@@ -61,19 +61,21 @@ namespace OwlCards
         // Watch for input whenever a player is picking
         void Update()
         {
+			// don't look for input if in esc menu
+			if (EscapeMenuHandler.isEscMenu)
+				return;
+
+			// not currently picking
             int pickrID = CardChoice.instance.pickrID;
             if (pickrID == -1)
                 return;
 
+			// If we're picking a curse disable reroll
 			if (OwlCards.instance.bCurseActivated)
-			{
-				// If we're picking a curse disable reroll
 				if (CurseHandler.IsPickingCurse())
-				{
-					OwlCards.Log("IS PICKING CURSE");
 					return;
-				}
-			}
+
+			// look if card loading animation is still playing beforehand
             var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
             bool isPlaying = (bool)isPlayingField.GetValue(CardChoice.instance);
 

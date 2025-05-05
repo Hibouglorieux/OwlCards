@@ -122,7 +122,7 @@ namespace OwlCards.UI
 			Color activeBlockColor = new Color(0.22f, 0.91f, 0.91f, 1f);
 			Color activeFireColor = new Color(1f, 0.51f, 0.33f, 1f);
 
-			Color curseColor = new Color(0.6f, 0.09f, 0.71f, 1f);
+			Color curseColor = new Color(0.43f, 0.31f, 0.49f, 1f);
 
 			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value.ToString("G3") +" soul)</i>";
 			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value.ToString("G3") +" soul)</i>";
@@ -161,6 +161,9 @@ namespace OwlCards.UI
 
 		void Update()
 		{
+			// don't show soul fill in pause menu
+			if (soulFill)
+				soulFill.SetActive(!EscapeMenuHandler.isEscMenu);
 			// this 'should' be done at playerPickStart hook
 			// however CardChoice.instance.pickrID isn't set yet
 			if (soulFill && CardChoice.instance.pickrID != -1 && playerSoulFillID != CardChoice.instance.pickrID)
