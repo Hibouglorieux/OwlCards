@@ -41,7 +41,7 @@ namespace OwlCards.Cards
 				);
 
 			ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, randomCard, addToCardBar: true);
-			StartCoroutine(ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, randomCard));
+			ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, randomCard);
 			//Edits values on player when card is selected
 		}
 
