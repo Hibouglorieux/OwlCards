@@ -28,7 +28,7 @@ namespace OwlCards.Cards
 				);
 
 			ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, randomCard, addToCardBar: true);
-			ModdingUtils.Utils.CardBarUtils.instance.ShowCard(player, randomCard);
+			StartCoroutine(ModdingUtils.Utils.CardBarUtils.instance.ShowImmediate(player, randomCard));
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
