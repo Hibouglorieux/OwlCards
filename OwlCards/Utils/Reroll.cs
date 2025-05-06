@@ -36,10 +36,11 @@ namespace OwlCards
         void Start()
         {
             instance = this;
-            GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.First);
+            GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, CheckRerolls, GameModeHooks.Priority.High);
             GameModeManager.AddHook(GameModeHooks.HookGameStart, OnGameStart);
             GameModeManager.AddHook(GameModeHooks.HookGameEnd, OnGameEnd);
         }
+
 
 		private IEnumerator OnGameStart(IGameModeHandler gm)
 		{
@@ -70,11 +71,6 @@ namespace OwlCards
             if (pickrID == -1)
                 return;
 
-			// If we're picking a curse disable reroll
-			if (OwlCards.instance.bCurseActivated)
-				if (CurseHandler.IsPickingCurse())
-					return;
-
 			// look if card loading animation is still playing beforehand
             var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
             bool isPlaying = (bool)isPlayingField.GetValue(CardChoice.instance);
@@ -99,16 +95,22 @@ namespace OwlCards
                         }
                         if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value)
                         {
-                            var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
+							// If we're picking a curse disable extrapick
+							if (OwlCards.instance.bCurseActivated)
+								if (CurseHandler.IsPickingCurse())
+									continue;
+							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
                             int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
 
                             var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
                             List<GameObject> spawnedCards = listRefField(CardChoice.instance);
 
-                            RerollCards(pickrID, OwlCards.instance.extraPickSoulCost.Value, spawnedCards[selectedCardIndex]);
+							DoExtraPickRequest(pickrID, spawnedCards[selectedCardIndex]);
                             break;
                         }
-                        /* the method is private and i can't deselect it for some reason
+
+						// Later: rework UI for selection of more options than 2 choices ?
+                        /*
 						if (((OneAxisInputControl)watchedActions[i].Down).Value > 0.7f)
 						{
 							CardChoiceVisuals.instance.currentCardSelected = -1;
@@ -133,9 +135,9 @@ namespace OwlCards
             }
         }
 
+		// Copied from  CardChoice.ReplaceCards (line 208)
         private IEnumerator ReplaceCards()
         {
-            // Copied from  CardChoice.ReplaceCards (line 208)
             var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
             isPlayingField.SetValue(CardChoice.instance, true);
 
@@ -151,9 +153,110 @@ namespace OwlCards
             spawnedCards.Clear();
             yield return new WaitForSecondsRealtime(0.2f);
 
-            CardChoice.instance.GetComponent<PhotonView>().RPC("RPCA_DonePicking", RpcTarget.All);
+			var spawnUniqueCardMethod = AccessTools.Method(typeof(CardChoice), "SpawnUniqueCard");
+			var childrenRef = AccessTools.FieldRefAccess<Transform[]>(typeof(CardChoice), "children");
+			Transform[] children = childrenRef(CardChoice.instance);
+			for (int j = 0; j < children.Length; j++)
+			{
+				GameObject newSpawnedCard = (GameObject)spawnUniqueCardMethod.Invoke(CardChoice.instance, new object[]{
+					children[j].transform.position, children[j].transform.rotation
+				});
+				spawnedCards.Add(newSpawnedCard);
+				spawnedCards[j].AddComponent<PublicInt>().theInt = j;
+				yield return new WaitForSecondsRealtime(0.1f);
+			}
+            //CardChoice.instance.GetComponent<PhotonView>().RPC("RPCA_DonePicking", RpcTarget.All);
             isPlayingField.SetValue(CardChoice.instance, false);
         }
+
+		// Copied from CardChoice.IDoEndpick (line 128)
+		private IEnumerator DoExtraPickClients(int[] cardIDs, int targetCardID, int theInt, int pickId)
+		{
+			//prevent another input and set isPlaying to true
+            var isPlayingField = AccessTools.Field(typeof(CardChoice), "isPlaying");
+			isPlayingField.SetValue(CardChoice.instance, true);
+
+			GameObject pickedCard = PhotonNetwork.GetPhotonView(targetCardID).gameObject;
+
+            var spawnedCardsRef = AccessTools.FieldRefAccess<List<GameObject>>(typeof(CardChoice), "spawnedCards");
+            List<GameObject> spawnedCards = spawnedCardsRef(CardChoice.instance);
+
+			var cardFromIDSMethod = AccessTools.Method(typeof(CardChoice), "CardFromIDs");
+			spawnedCards.Clear();
+			spawnedCards.AddRange((List<GameObject>)cardFromIDSMethod.Invoke(CardChoice.instance, new object[] { cardIDs }));
+
+
+			//bring card to player
+			Vector3 startPos = pickedCard.transform.position;
+			Vector3 endPos = CardChoiceVisuals.instance.transform.position;
+			float c2 = 0f;
+			while (c2 < 1f)
+			{
+				CardChoiceVisuals.instance.framesToSnap = 1;
+				Vector3 position = Vector3.LerpUnclamped(startPos, endPos, c2);
+				pickedCard.transform.position = position;
+				CardChoice.instance.transform.GetChild(theInt).position = position;
+				c2 += Time.deltaTime * 4f;
+				yield return null;
+			}
+
+			//update array of cards by removing picked card
+			for (int i = 0; i < spawnedCards.Count; i++)
+			{
+				if (spawnedCards[i].gameObject == pickedCard)
+				{
+					spawnedCards[i].GetComponentInChildren<CardVisuals>().Leave();
+					spawnedCards.RemoveAt(i);
+					
+					break;
+				}
+			}
+			//pickedCard.GetComponentInChildren<CardVisuals>().Leave();
+
+			// bring arm back to where it was
+			AnimationCurve softCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+			Vector3 startPos2 = CardChoice.instance.transform.GetChild(theInt).transform.position;
+			Vector3 endPos2 = startPos;
+			c2 = 0f;
+			while (c2 < 1f)
+			{
+				Vector3 position2 = Vector3.LerpUnclamped(startPos2, endPos2, softCurve.Evaluate(c2));
+				CardChoice.instance.transform.GetChild(theInt).position = position2;
+				c2 += Time.deltaTime * 4.0f * 1.5f;
+				yield return null;
+			}
+
+			isPlayingField.SetValue(CardChoice.instance, false);
+			yield break;
+		}
+
+		[UnboundRPC]
+		private static void ExtraPick_RPC(int[] cardIDs, int targetCardID, int theInt, int pickId)
+		{
+			IEnumerator e = instance.DoExtraPickClients(cardIDs, targetCardID, theInt, pickId);
+			instance.StartCoroutine(e);
+		}
+
+		private void DoExtraPickRequest(int pickrID, GameObject pickedCard)
+		{
+			var pickerTypeField = AccessTools.Field(typeof(CardChoice), "pickerType");
+			PickerType pickerType = (PickerType)pickerTypeField.GetValue(CardChoice.instance);
+
+			pickedCard.GetComponentInChildren<ApplyCardStats>().Pick(pickrID, forcePick: false, pickerType);
+
+			int targetCardID = pickedCard.GetComponent<PhotonView>().ViewID;
+			int theInt = pickedCard.GetComponent<PublicInt>().theInt;
+			var cardFromIDSMethod = AccessTools.Method(typeof(CardChoice), "CardIDs");
+			int[] cardIDs = (int[])cardFromIDSMethod.Invoke(CardChoice.instance, new object[] { });
+
+			OwlCards.Log("about to call RPC");
+			NetworkingManager.RPC(typeof(Reroll), nameof(ExtraPick_RPC), new object[] {
+				cardIDs,
+				pickedCard.GetComponent<PhotonView>().ViewID,
+				pickedCard.GetComponent<PublicInt>().theInt,
+				pickrID
+			});
+		}
 
         private void PickCard(GameObject cardToPick)
         {
@@ -198,26 +301,15 @@ namespace OwlCards
         {
             OwlCardsData.UpdateSoul(pickrID,
             CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - soulUsed);
-            Add1Reroll(pickrID);
-            if (PhotonNetwork.OfflineMode)
-            {
-                PickCard(cardToPick);
-            }
-            else
-            {
-                if (cardToPick)
-                {
-                    PickCard(cardToPick);
-                }
-                else
-                {
-                    StartCoroutine(ReplaceCards());
-                }
-            }
+			if (cardToPick)
+				PickCard(cardToPick);
+			else
+				StartCoroutine(ReplaceCards());
         }
 
         private IEnumerator CheckRerolls(IGameModeHandler gm)
         {
+			OwlCards.Log("CheckRerolls called !");
             int pickrID = -1;
 			List<CardCategory> blacklist = new List<CardCategory>();
 			Player chosenPlayer = null;
@@ -278,6 +370,18 @@ namespace OwlCards
 
 			foreach (CardCategory cardCategory in blacklist)
 				ModdingUtils.Extensions.CharacterStatModifiersExtension.GetAdditionalData(chosenPlayer.data.stats).blacklistedCategories.Remove(cardCategory);
+
+
+			int newRerollID = -1;
+			foreach (Player player in PlayerManager.instance.players.ToArray())
+			{
+				CharacterStatModifiers stats = player.data.stats;
+				if (stats.GetAdditionalData().Rerolls > 0)
+				{
+					newRerollID = player.playerID;
+					break;
+				}
+			}
 
             yield return new WaitForSecondsRealtime(0.1f);
             yield return GameModeManager.TriggerHook(GameModeHooks.HookPlayerPickEnd);

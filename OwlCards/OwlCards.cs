@@ -24,10 +24,9 @@ namespace OwlCards
 	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
 
-	//TODO Add CurseManager dependency so reroll/extra pick DOES NOT WORK during curse pick !!
 	[BepInDependency("com.willuwontu.rounds.managers", BepInDependency.DependencyFlags.SoftDependency)]
 	//TODO Add pickncards dependency for dynamic/temp handsize increase/decrease
-	[BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.SoftDependency)]
+	//[BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.SoftDependency)]
 
 	// Declares our mod to Bepin
 	[BepInPlugin(ModId, ModName, Version)]
@@ -55,7 +54,7 @@ namespace OwlCards
 		public ConfigEntry<bool> bExtraPickActive;
 
 		public bool bCurseActivated { get; private set; }
-		public bool bPickNCards { get; private set;}
+		//public bool bPickNCards { get; private set;}
 
 		private List<int[]> pointWinnersID = new List<int[]>();
 
@@ -64,7 +63,7 @@ namespace OwlCards
 			instance = this;
 
 			bCurseActivated = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.willuwontu.rounds.managers");
-			bPickNCards = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("pykess.rounds.plugins.pickncards");
+			//bPickNCards = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("pykess.rounds.plugins.pickncards");
 
 			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
 			soulGainedPerPointWon = Config.Bind(ModName, nameof(soulGainedPerPointWon), 0.25f, "How much soul resource is earned passively each round");
