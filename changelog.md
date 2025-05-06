@@ -11,4 +11,5 @@ bugfix:
 - fixed soul interraction and UI with EscapeMenu
 - fixed some issue regarding the rerolls (like rerolling while during a custom draw)
 - fixed display of card when picking a random one
+- removed untested card SoulExhaustion
 </details>

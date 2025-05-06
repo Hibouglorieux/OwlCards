@@ -317,7 +317,6 @@ namespace OwlCards
             int pickrID = -1;
 			List<CardCategory> blacklist = new List<CardCategory>();
 			Player chosenPlayer = null;
-			//TODO issue: custom draw wait is affected by rerolls
             foreach (Player player in PlayerManager.instance.players.ToArray())
             {
                 CharacterStatModifiers stats = player.data.stats;

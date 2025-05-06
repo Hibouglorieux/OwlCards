@@ -179,7 +179,7 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.Resolution>();
 
 			// TODO need to be tested
-			CustomCard.BuildCard<Cards.SoulExhaustion>();
+			//CustomCard.BuildCard<Cards.SoulExhaustion>();
 
 			//Random/give other cards
 			CustomCard.BuildCard<Cards.FunKiller>();

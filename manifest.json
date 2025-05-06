@@ -1,8 +1,8 @@
 {
 	"name": "OwlCards",
-	"version_number": "0.1.0",
+	"version_number": "0.2.0",
 	"website_url": "https://github.com/Hibouglorieux/OwlCards",
-	"description": "Adds a new ressource to be spent during card selection aswell as some cards.",
+	"description": "Adds a new ressource to reroll cards aswell as some cards.",
 	"dependencies": [
 		"BepInEx-BepInExPack_ROUNDS-5.4.1901",
 		"willis81808-UnboundLib-3.2.14",
