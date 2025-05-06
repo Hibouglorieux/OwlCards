@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using UnboundLib.Networking;
 using UnboundLib;
+using Photon.Pun;
 
 namespace OwlCards.Extensions
 {
@@ -35,8 +36,7 @@ namespace OwlCards.Extensions
 				int playerID = playersIDs[i];
 				float newSoulValue = newSoulValues[i];
 
-				OwlCardsData data = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(playerID).data.stats);
-				data.Soul = newSoulValue;
+				GetData(playerID).Soul = newSoulValue;
 			}
 		}
 
@@ -44,7 +44,8 @@ namespace OwlCards.Extensions
 		{
 			object[] obj = { playersIDs, newSoulValues };
 			UpdateSoul_RPC(playersIDs, newSoulValues);
-			NetworkingManager.RPC_Others(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
+			if (!PhotonNetwork.OfflineMode)
+				NetworkingManager.RPC_Others(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
 		}
 		public static void UpdateSoul(int playerID, float newSoulValue)
 		{

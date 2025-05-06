@@ -77,9 +77,10 @@ namespace OwlCards
 
             float currentSoul = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
 
+
             if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
             {
-                PlayerActions[] watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
+				PlayerActions[] watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
                 if (watchedActions != null)
                 {
                     for (int i = 0; i < watchedActions.Length; i++)
@@ -93,17 +94,22 @@ namespace OwlCards
                             RerollCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
                             break;
                         }
-                        if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value)
+						var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
+						List<GameObject> spawnedCards = listRefField(CardChoice.instance);
+                        if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value
+							&& spawnedCards.Count > 1)
                         {
 							// If we're picking a curse disable extrapick
 							if (OwlCards.instance.bCurseActivated)
 								if (CurseHandler.IsPickingCurse())
 									continue;
+
+							OwlCardsData.UpdateSoul(pickrID,
+							CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - OwlCards.instance.extraPickSoulCost.Value);
+
 							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
                             int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
 
-                            var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
-                            List<GameObject> spawnedCards = listRefField(CardChoice.instance);
 
 							DoExtraPickRequest(pickrID, spawnedCards[selectedCardIndex]);
                             break;
@@ -169,7 +175,7 @@ namespace OwlCards
             isPlayingField.SetValue(CardChoice.instance, false);
         }
 
-		// Copied from CardChoice.IDoEndpick (line 128)
+		// Copied from CardChoice.DoEndPick (line 121)
 		private IEnumerator DoExtraPickClients(int[] cardIDs, int targetCardID, int theInt, int pickId)
 		{
 			//prevent another input and set isPlaying to true
@@ -182,9 +188,13 @@ namespace OwlCards
             List<GameObject> spawnedCards = spawnedCardsRef(CardChoice.instance);
 
 			var cardFromIDSMethod = AccessTools.Method(typeof(CardChoice), "CardFromIDs");
-			spawnedCards.Clear();
-			spawnedCards.AddRange((List<GameObject>)cardFromIDSMethod.Invoke(CardChoice.instance, new object[] { cardIDs }));
 
+			// Had to make this local only otherwise there is a bug sound for some reason i couldn't find
+			if (Utils.GetPlayerWithID(pickId).data.view.IsMine)
+			{
+				spawnedCards.Clear();
+				spawnedCards.AddRange((List<GameObject>)cardFromIDSMethod.Invoke(CardChoice.instance, new object[] { cardIDs }));
+			}
 
 			//bring card to player
 			Vector3 startPos = pickedCard.transform.position;
@@ -201,17 +211,11 @@ namespace OwlCards
 			}
 
 			//update array of cards by removing picked card
-			for (int i = 0; i < spawnedCards.Count; i++)
-			{
-				if (spawnedCards[i].gameObject == pickedCard)
-				{
-					spawnedCards[i].GetComponentInChildren<CardVisuals>().Leave();
-					spawnedCards.RemoveAt(i);
-					
-					break;
-				}
-			}
-			//pickedCard.GetComponentInChildren<CardVisuals>().Leave();
+			pickedCard.GetComponentInChildren<CardVisuals>().Leave();
+
+			//spawnedCards update locally only
+			if (Utils.GetPlayerWithID(pickId).data.view.IsMine)
+				spawnedCards.Remove(pickedCard);
 
 			// bring arm back to where it was
 			AnimationCurve softCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -249,7 +253,6 @@ namespace OwlCards
 			var cardFromIDSMethod = AccessTools.Method(typeof(CardChoice), "CardIDs");
 			int[] cardIDs = (int[])cardFromIDSMethod.Invoke(CardChoice.instance, new object[] { });
 
-			OwlCards.Log("about to call RPC");
 			NetworkingManager.RPC(typeof(Reroll), nameof(ExtraPick_RPC), new object[] {
 				cardIDs,
 				pickedCard.GetComponent<PhotonView>().ViewID,
@@ -283,7 +286,8 @@ namespace OwlCards
             }
             object[] data = { playersIDs, newRerollsValue };
 			UpdateRerollValue_RPC(playersIDs, newRerollsValue);
-            NetworkingManager.RPC_Others(typeof(Reroll), nameof(UpdateRerollValue_RPC), data);
+			if (!PhotonNetwork.OfflineMode)
+				NetworkingManager.RPC_Others(typeof(Reroll), nameof(UpdateRerollValue_RPC), data);
         }
 
         public void Add1Reroll(int playerID)
