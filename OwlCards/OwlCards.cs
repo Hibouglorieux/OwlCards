@@ -14,6 +14,7 @@ using OwlCards.Cards;
 using OwlCards.Extensions;
 using Photon.Pun;
 using UnboundLib.Utils;
+using OwlCards.Dependencies;
 
 namespace OwlCards
 {
@@ -209,8 +210,9 @@ namespace OwlCards
 			if (bCurseActivated)
 			{
 				//curses
-				CustomCard.BuildCard<Cards.Curses.WeakenedSoul>();
-				CustomCard.BuildCard<Cards.Curses.Burden>();
+
+				CustomCard.BuildCard<Cards.Curses.WeakenedSoul>(cardInfo => { CurseHandler.RegisterCurse(cardInfo);});
+				CustomCard.BuildCard<Cards.Curses.Burden>(cardInfo => { CurseHandler.RegisterCurse(cardInfo);});
 
 				//curse related cards
 				CustomCard.BuildCard<Cards.Curses.Envy>();

@@ -14,6 +14,8 @@ namespace OwlCards.Dependencies
 		static MethodInfo _isPickingCurse;
 		static MethodInfo _cursePlayer;
 		static MethodInfo _getRaw;
+		static MethodInfo _curseSpawnerCategoryMethod;
+		static MethodInfo _registerCurseMethod;
 
 		public static void Init(PluginInfo pluginInfo)
 		{
@@ -27,16 +29,20 @@ namespace OwlCards.Dependencies
 			_isPickingCurse = AccessTools.PropertyGetter(curseManagerType, "CursePick");
 			_cursePlayer = AccessTools.Method(curseManagerType, "CursePlayer", new Type[] { typeof(Player), typeof(Action<CardInfo>) });
 			_getRaw = AccessTools.Method(curseManagerType, "GetRaw");
+			_curseSpawnerCategoryMethod = AccessTools.PropertyGetter(curseManagerType, "curseSpawnerCategory");
+			_registerCurseMethod = AccessTools.Method(curseManagerType, "RegisterCurse");
 
 #if DEBUG
 			OwlCards.Log("Curse test CurseCategory: " + CurseCategory.name);
 			OwlCards.Log("Curse test CursedPink: " + CursedPink.ToString());
 			OwlCards.Log("Curse test IsPickingCurse: " + IsPickingCurse.ToString());
 			OwlCards.Log("Curse test bCurseAvailable: " + bCurseAvailable);
+			OwlCards.Log("Curse test CurseGeneratorCategory: " + CurseSpawnerCategory.name);
 #endif
 		}
 
 		public static CardCategory CurseCategory => (CardCategory)_curseCategoryMethod.Invoke(_curseManagerInstance, new object[] { });
+		public static CardCategory CurseSpawnerCategory => (CardCategory)_curseSpawnerCategoryMethod.Invoke(_curseManagerInstance, new object[] { });
 
 		public static CardThemeColor.CardThemeColorType CursedPink => (CardThemeColor.CardThemeColorType)_curseColor.Invoke(null, new object[] { });
 		
@@ -48,5 +54,10 @@ namespace OwlCards.Dependencies
 		}
 
 		public static bool bCurseAvailable => ((CardInfo[])_getRaw.Invoke(_curseManagerInstance, new object[] { false})).Count() > 0;
+
+		public static void RegisterCurse(CardInfo curse)
+		{
+			_registerCurseMethod.Invoke(_curseManagerInstance, new object[] { curse });
+		}
 	}
 }

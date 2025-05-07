@@ -7,6 +7,7 @@ using UnboundLib;
 using System.Collections;
 using OwlCards.Extensions;
 using OwlCards.Dependencies;
+using Photon.Pun;
 
 namespace OwlCards.Cards.Curses
 {
@@ -16,13 +17,15 @@ namespace OwlCards.Cards.Curses
         {
 			conditions[GetTitle()] = (float soul) => { return soul < 1.5; };//Mismatch is intended, to put player in negative
 			if (!cardInfo.categories.Contains(CurseHandler.CurseCategory))
-				cardInfo.categories = cardInfo.categories.Append(CurseHandler.CurseCategory).ToArray();
+				cardInfo.categories = cardInfo.categories.Append(CurseHandler.CurseSpawnerCategory).ToArray();
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
             //Edits values on card itself, which are then applied to the player in `ApplyCardStats`
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player.playerID).Soul - 2);
 			if (CurseHandler.bCurseAvailable)
 			{
 				OwlCards.instance.ExecuteAfterFrames(20, () =>
