@@ -112,6 +112,14 @@ namespace OwlCards
 					card.cardInfo.categories = card.cardInfo.categories.Append(OwlCardCategory.rarityCategories[card.cardInfo.rarity]).ToArray();
 				}
             }
+
+
+			// Set hand size according to Soul value
+			int newHandSize = DrawNCards.DrawNCards.NumDraws;
+			newHandSize += soulOnGameStart.Value > 2 ? 1 : 0;
+			newHandSize += soulOnGameStart.Value > 4 ? 1 : 0;
+			foreach (Player player in PlayerManager.instance.players)
+				DrawNCards.DrawNCards.SetPickerDraws(player.playerID, newHandSize);
             yield break;
 		}
 
