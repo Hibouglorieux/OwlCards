@@ -1,12 +1,9 @@
-﻿using OwlCards.Cards;
-using OwlCards.Dependencies;
+﻿using OwlCards.Dependencies;
 using OwlCards.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using UnboundLib;
 using UnboundLib.GameModes;
 using UnityEngine;
 using UnityEngine.UI;
@@ -124,18 +121,21 @@ namespace OwlCards.UI
 
 			Color curseColor = new Color(0.43f, 0.31f, 0.49f, 1f);
 
-			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs "+ OwlCards.instance.rerollSoulCost.Value.ToString("G3") +" soul)</i>";
-			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs "+ OwlCards.instance.extraPickSoulCost.Value.ToString("G3") +" soul)</i>";
+			float soulConsumptionFactor = OwlCardsData.GetData(Utils.GetPlayerWithID(playerSoulFillID)).soulConsumptionFactor;
+			string blockDisplayedMsg = "Press <color=blue>Block</color> to reroll cards\n <i>(costs " +
+				(OwlCards.instance.rerollSoulCost.Value * soulConsumptionFactor).ToString("G3") +" soul)</i>";
+			string fireDisplayMsg = "Press <color=red>Fire</color> to pick an extra card\n <i>(costs " +
+				(OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor).ToString("G3") +" soul)</i>";
 
-			if (OwlCards.instance.bCurseActivated && CurseHandler.IsPickingCurse())
+			if (OwlCardsData.GetData(playerSoulFillID).soulConsumptionFactor > 1.0f)
 			{
-				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : curseColor;
-				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : curseColor;
+				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value * soulConsumptionFactor ? inactiveColor : curseColor;
+				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor ? inactiveColor : curseColor;
 			}
 			else
 			{
-				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value ? inactiveColor : activeBlockColor;
-				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value ? inactiveColor : activeFireColor;
+				soulFill.transform.GetChild(1).GetComponent<Image>().color = soulValue < OwlCards.instance.rerollSoulCost.Value * soulConsumptionFactor ? inactiveColor : activeBlockColor;
+				soulFill.transform.GetChild(2).GetComponent<Image>().color = soulValue < OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor ? inactiveColor : activeFireColor;
 			}
 
 			soulFill.transform.GetChild(1).GetComponentInChildren<Text>().text = blockDisplayedMsg; 

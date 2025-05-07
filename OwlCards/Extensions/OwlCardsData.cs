@@ -23,6 +23,7 @@ namespace OwlCards.Extensions
 				}
 			}
 		}
+		public float soulConsumptionFactor;
 		public event Action<float> soulChanged;
 
 		private int _rerolls;
@@ -36,7 +37,22 @@ namespace OwlCards.Extensions
 				int playerID = playersIDs[i];
 				float newSoulValue = newSoulValues[i];
 
-				GetData(playerID).Soul = newSoulValue;
+				OwlCardsData data = GetData(playerID);
+				{
+					int oldDrawValue = DrawNCards.DrawNCards.GetPickerDraws(playerID);
+
+					Action<int, int> updateHandSizeWithSoulValue = (int bound, int handSizeChange) => {
+						if (data.Soul < bound && newSoulValue >= bound)
+							DrawNCards.DrawNCards.SetPickerDraws(playerID, (oldDrawValue += handSizeChange));
+						if (data.Soul >= bound && newSoulValue < bound)
+							DrawNCards.DrawNCards.SetPickerDraws(playerID, (oldDrawValue -= handSizeChange));
+					};
+
+					updateHandSizeWithSoulValue(0, 2);
+					updateHandSizeWithSoulValue(2, 1);
+					updateHandSizeWithSoulValue(4, 1);
+				}
+				data.Soul = newSoulValue;
 			}
 		}
 
@@ -65,6 +81,7 @@ namespace OwlCards.Extensions
 		{
 			_soul = OwlCards.instance.soulOnGameStart.Value;
 			_rerolls = 0;
+			soulConsumptionFactor = 1.0f;
 		}
 	}
 
@@ -103,6 +120,8 @@ namespace OwlCards.Extensions
 
 			var rerollsField = AccessTools.Field(typeof(OwlCardsData), "_rerolls");
 			rerollsField.SetValue(additionalData, 0);
+
+			additionalData.soulConsumptionFactor = 1.0f;
 		}
 	}
 }

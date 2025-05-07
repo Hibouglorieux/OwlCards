@@ -35,5 +35,18 @@ namespace OwlCards
 			}
 			return othersIDs;
 		}
+
+		public static int[] GetOpponentsPlayersIDs(int playerID)
+		{
+			List<int> opponentsIDs = new List<int>();
+			Player player = GetPlayerWithID(playerID);
+
+			foreach (Player otherPlayer in PlayerManager.instance.players)
+			{
+				if (otherPlayer.teamID != player.teamID)
+					opponentsIDs.Add(otherPlayer.teamID);
+			}
+			return opponentsIDs.ToArray();
+		}
 	}
 }

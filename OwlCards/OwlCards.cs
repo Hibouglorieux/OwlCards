@@ -21,12 +21,13 @@ namespace OwlCards
 	[BepInDependency("com.willis.rounds.unbound", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.moddingutils", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("pykess.rounds.plugins.cardchoicespawnuniquecardpatch", BepInDependency.DependencyFlags.HardDependency)]
+
 	[BepInDependency("root.rarity.lib", BepInDependency.DependencyFlags.HardDependency)]
 	[BepInDependency("com.CrazyCoders.Rounds.RarityBundle", BepInDependency.DependencyFlags.HardDependency)]
 
+	[BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.HardDependency)]
+
 	[BepInDependency("com.willuwontu.rounds.managers", BepInDependency.DependencyFlags.SoftDependency)]
-	//TODO Add pickncards dependency for dynamic/temp handsize increase/decrease
-	//[BepInDependency("pykess.rounds.plugins.pickncards", BepInDependency.DependencyFlags.SoftDependency)]
 
 	// Declares our mod to Bepin
 	[BepInPlugin(ModId, ModName, Version)]
@@ -36,7 +37,7 @@ namespace OwlCards
 	{
 		private const string ModId = "com.HibouGlorieux.Rounds.OwlCards";
 		public const string ModName = "OwlCards";
-		public const string Version = "0.1.0"; // What version are we on (major.minor.patch)?
+		public const string Version = "0.3.0"; // What version are we on (major.minor.patch)?
 
 		public const string ModInitials = "OWL";
 		private const string LogPrefix = ModName + ": ";
@@ -54,7 +55,6 @@ namespace OwlCards
 		public ConfigEntry<bool> bExtraPickActive;
 
 		public bool bCurseActivated { get; private set; }
-		//public bool bPickNCards { get; private set;}
 
 		private List<int[]> pointWinnersID = new List<int[]>();
 
@@ -62,8 +62,9 @@ namespace OwlCards
 		{
 			instance = this;
 
-			bCurseActivated = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.willuwontu.rounds.managers");
-			//bPickNCards = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("pykess.rounds.plugins.pickncards");
+			bCurseActivated = BepInEx.Bootstrap.Chainloader.PluginInfos.TryGetValue("com.willuwontu.rounds.managers",  out PluginInfo pluginInfo);
+			if (bCurseActivated)
+				Dependencies.CurseHandler.Init(pluginInfo);
 
 			soulGainedPerRound = Config.Bind(ModName, nameof(soulGainedPerRound), 0.5f, "How much soul resource is earned passively each round");
 			soulGainedPerPointWon = Config.Bind(ModName, nameof(soulGainedPerPointWon), 0.25f, "How much soul resource is earned passively each round");
@@ -193,7 +194,19 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.OpenBar>();
 			//remove X soul and instead have a good draw
 			CustomCard.BuildCard<Cards.Pious>();
+			//Use soul to reroll + reduce others hand size
+			CustomCard.BuildCard<Cards.CorruptedFaith>();
 
+
+			if (bCurseActivated)
+			{
+				//curses
+				CustomCard.BuildCard<Cards.Curses.WeakenedSoul>();
+				CustomCard.BuildCard<Cards.Curses.Burden>();
+
+				//curse related cards
+				CustomCard.BuildCard<Cards.Curses.Envy>();
+			}
 			// trade random curse for some soul
 			// todo later with softdependancy of curses
 			//CustomCard.BuildCard<Cards.Soul>();
@@ -231,7 +244,7 @@ namespace OwlCards
 			{
 				foreach (int pointWinner in pointWinners)
 				{
-					if (!winningPlayersID.Contains(pointWinner))
+					//if (!winningPlayersID.Contains(pointWinner)) // add ressource even to winning player
 					{
 						Player player = Utils.GetPlayerWithID(pointWinner);
 						if (newSoulValues.ContainsKey(player.playerID))

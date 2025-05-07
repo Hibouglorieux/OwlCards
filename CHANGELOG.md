@@ -12,4 +12,11 @@ bugfix:
 - fixed some issue regarding the rerolls (like rerolling while during a custom draw)
 - fixed display of card when picking a random one
 - removed untested card SoulExhaustion
+
+<summary>0.3.0</summary>
+- Added dependency to PickNCards mod aswell as dynamic use of it through cards and soul value
+- Added curses and curse generating cards if WillsWackyManager module is present
+- Changed some words and interraction to affect only foes for team mode compatibility
+- Soul earned with points now affect round winning player too
 </details>
+

@@ -1,6 +1,6 @@
 {
 	"name": "OwlCards",
-	"version_number": "0.2.0",
+	"version_number": "0.3.0",
 	"website_url": "https://github.com/Hibouglorieux/OwlCards",
 	"description": "Adds a new ressource to reroll cards aswell as some cards.",
 	"dependencies": [
@@ -9,6 +9,7 @@
 		"Pykess-ModdingUtils-0.4.8",
 		"Pykess-CardChoiceSpawnUniqueCardPatch-0.1.10",
 		"Root-RarityLib-1.2.8",
+		"Pykess-Pick_N_Cards-0.2.6",
 		"CrazyCoders-RarityBundle-0.2.1"
     ]
 }

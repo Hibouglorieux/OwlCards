@@ -77,8 +77,9 @@ namespace OwlCards
 
             float currentSoul = CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul;
 
+			float soulConsumptionFactor = OwlCardsData.GetData(pickrID).soulConsumptionFactor;
 
-            if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value)
+            if (!isPlaying && currentSoul >= OwlCards.instance.rerollSoulCost.Value * soulConsumptionFactor)
             {
 				PlayerActions[] watchedActions = PlayerManager.instance.GetActionsFromPlayer(CardChoice.instance.pickrID);
                 if (watchedActions != null)
@@ -91,21 +92,22 @@ namespace OwlCards
                         PlayerAction watchedSpecificInput = watchedActions[i].Block;
                         if (watchedSpecificInput.WasPressed)
                         {
-                            RerollCards(pickrID, OwlCards.instance.rerollSoulCost.Value);
+                            RerollCards(pickrID, OwlCards.instance.rerollSoulCost.Value * soulConsumptionFactor);
                             break;
                         }
 						var listRefField = AccessTools.FieldRefAccess<CardChoice, List<GameObject>>("spawnedCards");
 						List<GameObject> spawnedCards = listRefField(CardChoice.instance);
-                        if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed && currentSoul >= OwlCards.instance.extraPickSoulCost.Value
+                        if (OwlCards.instance.bExtraPickActive.Value && watchedActions[i].Fire.WasPressed &&
+							currentSoul >= OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor
 							&& spawnedCards.Count > 1)
                         {
 							// If we're picking a curse disable extrapick
 							if (OwlCards.instance.bCurseActivated)
-								if (CurseHandler.IsPickingCurse())
+								if (CurseHandler.IsPickingCurse)
 									continue;
 
 							OwlCardsData.UpdateSoul(pickrID,
-							CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - OwlCards.instance.extraPickSoulCost.Value);
+							CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor);
 
 							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
                             int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);

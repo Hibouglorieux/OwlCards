@@ -31,7 +31,7 @@ namespace OwlCards
 				(float newValue) => { OwlCards.instance.soulGainedPerRound.Value = newValue; }, out UnityEngine.UI.Slider _);
 
 			MenuHandler.CreateText("", menu, out TextMeshProUGUI _);
-			MenuHandler.CreateSlider("Extra soul gained per point won (not applied to round winner)", menu, 30, 0, 1,
+			MenuHandler.CreateSlider("Extra soul gained per point won", menu, 30, 0, 1,
 				OwlCards.instance.soulGainedPerPointWon.Value,
 				(float newValue) => { OwlCards.instance.soulGainedPerPointWon.Value = newValue; }, out UnityEngine.UI.Slider _);
 
