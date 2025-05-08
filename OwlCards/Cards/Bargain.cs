@@ -21,9 +21,7 @@ namespace OwlCards.Cards
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
-			{
 				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul - 3);
-			}
 
 			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
 

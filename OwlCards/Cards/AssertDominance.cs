@@ -16,7 +16,7 @@ namespace OwlCards.Cards
 			gun.knockback = 2.0f;
 			gun.reloadTime = 0.75f;
 			statModifiers.movementSpeed = 1.25f;
-			statModifiers.sizeMultiplier = 1.15f;
+			statModifiers.sizeMultiplier = 1.25f;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -106,7 +106,7 @@ namespace OwlCards.Cards
 				{
 					positive = false,
 					stat = "Size",
-					amount = "+15%",
+					amount = "+25%",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
 			};

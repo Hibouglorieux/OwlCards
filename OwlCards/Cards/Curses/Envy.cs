@@ -100,7 +100,7 @@ namespace OwlCards.Cards.Curses
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return Rarities.Uncommon;
+            return Rarities.Scarce;
         }
 
         protected override CardThemeColor.CardThemeColorType GetTheme()

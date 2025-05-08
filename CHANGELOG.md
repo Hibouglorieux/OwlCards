@@ -29,5 +29,13 @@
 <details>
 <summary>0.4.0</summary>
 <ul>
+<li>Fixed bug with StealSoul card not properly stealing soul</li>
+<li>Fixed UI of soul not disappearing for others players when playing online</li>
+<li>Fixed bug with handsize change conflicts</li>
+</ul>
+<ul>
+<li>Balance change on cards</li>
+<li>Added more cards</li>
+<li>Added UI display for hand size change</li>
 </ul>
 </details>

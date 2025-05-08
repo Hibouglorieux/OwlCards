@@ -26,6 +26,7 @@ namespace OwlCards.Logic
 				float soulEarned = Mathf.Min(damage.magnitude, player.data.health) / 1000.0f;
 
 				float newSoul = CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulEarned;
+				OwlCards.Log("earned " + soulEarned + " with FeedMe");
 				OwlCardsData.UpdateSoul(player.playerID, newSoul);
 			}
 		}

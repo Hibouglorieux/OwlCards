@@ -8,13 +8,14 @@ namespace OwlCards.Cards
 {
 	internal class SoulLeech : AOwlCard
 	{
-		public const float rerollLeeched = 0.1f;
-		public const float maxLeechPerRoundPerPlayer = 0.15f;
+		static public float rerollLeeched => 0.05f;
+		static public float maxLeechPerRoundPerPlayer => 0.4f;
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 			statModifiers.lifeSteal = 0.2f;
 			gun.damage = 0.85f;
+			gun.projectileColor = new Color(0.65f, 0.35f, 0.77f, 1f);
 			cardInfo.allowMultiple = false;
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -71,7 +72,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Scarce;
+			return Rarities.Uncommon;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

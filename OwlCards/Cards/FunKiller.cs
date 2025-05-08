@@ -1,6 +1,7 @@
 ﻿using ModdingUtils.Extensions;
 using OwlCards.Extensions;
 using Photon.Pun;
+using RarityBundle;
 using System.Linq;
 
 namespace OwlCards.Cards
@@ -82,7 +83,7 @@ namespace OwlCards.Cards
 		*/
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Uncommon;
+			return Rarities.Scarce;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

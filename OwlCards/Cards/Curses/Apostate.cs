@@ -24,18 +24,13 @@ namespace OwlCards.Cards.Curses
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+			{
 				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player.playerID).Soul - 15);
+				Reroll.instance.AddCustomDraw(player.playerID, 0, OwlCardCategory.GetRarityCategoryAndHigher(Rarities.Epic, true));
+				Reroll.instance.Add1Reroll(player.playerID);
+			}
 			OwlCurse.GiveCurse(player);
 
-			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
-				(cardInfo, player, gun, gunAmmo, data, health, gravity, block, characterStats) => {
-					return RarityUtils.GetRarityData(cardInfo.rarity).calculatedRarity
-					<= RarityUtils.GetRarityData(Rarities.Epic).calculatedRarity;
-				}
-				);
-
-			ModdingUtils.Utils.Cards.instance.AddCardToPlayer(player, randomCard, addToCardBar: true);
-			ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, randomCard);
 			//Edits values on player when card is selected
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -49,7 +44,7 @@ namespace OwlCards.Cards.Curses
 		}
 		protected override string GetDescription()
 		{
-			return "You sell your soul for a random " + 
+			return "You sell your soul to chose an " + 
 				RarityToColorString(Rarities.Epic)
 				+" or rarer card";
 		}

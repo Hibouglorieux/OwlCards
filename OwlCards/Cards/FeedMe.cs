@@ -56,7 +56,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Exotic;
+			return Rarities.Rare;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

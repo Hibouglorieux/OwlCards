@@ -82,7 +82,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Scarce;
+			return Rarities.Uncommon;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
