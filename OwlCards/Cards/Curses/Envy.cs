@@ -20,6 +20,7 @@ namespace OwlCards.Cards.Curses
 				cardInfo.categories = cardInfo.categories.Append(CurseHandler.CurseSpawnerCategory).ToArray();
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
+			cardInfo.GetAdditionalData().canBeReassigned = false;
             //Edits values on card itself, which are then applied to the player in `ApplyCardStats`
         }
         public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -38,23 +39,12 @@ namespace OwlCards.Cards.Curses
 							cursesToGive++;
 						if (otherPlayerSoul > 3.5)
 							cursesToGive++;
-						OwlCards.instance.StartCoroutine(GiveCurses(Utils.GetPlayerWithID(otherPlayerID), cursesToGive));
+						OwlCurse.GiveCurse(Utils.GetPlayerWithID(otherPlayerID), cursesToGive);
 					}
 				});
 			}
             //Edits values on player when card is selected
         }
-
-		private IEnumerator GiveCurses(Player player, int amount)
-		{
-			for (int i = 0; i < amount; i++)
-			{
-				CurseHandler.CursePlayer(player, (curse) => { ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, curse); });
-				for (int j = 0; j < 20; j++)
-					yield return null;
-			}
-			yield break;
-		}
 
         public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
         {
