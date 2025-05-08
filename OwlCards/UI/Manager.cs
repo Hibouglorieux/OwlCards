@@ -16,6 +16,7 @@ namespace OwlCards.UI
 		private GameObject canvas = null;
 		private GameObject soulFill = null;
 		private int playerSoulFillID = -1;
+		private bool bIsPicking = false;
 		private Dictionary<int, GameObject> soulCounters = new Dictionary<int, GameObject>();
 		private List<Action<float>> handlers = new List<Action<float>>();
 
@@ -29,18 +30,27 @@ namespace OwlCards.UI
 			GameModeManager.AddHook(GameModeHooks.HookGameStart, BuildUI);
 			GameModeManager.AddHook(GameModeHooks.HookGameEnd, ClearUI);
 
+			GameModeManager.AddHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
 			GameModeManager.AddHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
+		}
+
+		private IEnumerator OnPlayerPickStart(IGameModeHandler gm)
+		{
+			bIsPicking = true;
+			yield break;
 		}
 
 		private IEnumerator OnPlayerPickEnd(IGameModeHandler gm)
 		{
 			playerSoulFillID = -1;
 			soulFill.SetActive(false);
+			bIsPicking = false;
 			yield break;
 		}
 
 		void OnDestroy()
 		{
+			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickStart, OnPlayerPickStart);
 			GameModeManager.RemoveHook(GameModeHooks.HookPlayerPickEnd, OnPlayerPickEnd);
 
 			GameModeManager.RemoveHook(GameModeHooks.HookGameStart, BuildUI);
@@ -142,7 +152,7 @@ namespace OwlCards.UI
 			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg;
 
 			Func<string> getHandSizeDiff = () => {
-				if (soulValue == 0)
+				if (soulValue < 0)
 					return "<color=#FF2D2D>-2</color>";
 				if (soulValue < 2)
 					return "+0";
@@ -173,6 +183,8 @@ namespace OwlCards.UI
 
 		void Update()
 		{
+			if (!bIsPicking)
+				return;
 			// this 'should' be done at playerPickStart hook
 			// however CardChoice.instance.pickrID isn't set yet
 			if (soulFill && CardChoice.instance.pickrID != -1 && playerSoulFillID != CardChoice.instance.pickrID)
