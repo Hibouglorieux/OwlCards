@@ -38,7 +38,7 @@ namespace OwlCards
 	{
 		private const string ModId = "com.HibouGlorieux.Rounds.OwlCards";
 		public const string ModName = "OwlCards";
-		public const string Version = "0.4.0"; // What version are we on (major.minor.patch)?
+		public const string Version = "0.5.0"; // What version are we on (major.minor.patch)?
 
 		public const string ModInitials = "OWL";
 		private const string LogPrefix = ModName + ": ";

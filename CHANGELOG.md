@@ -39,3 +39,8 @@
 <li>Added UI display for hand size change</li>
 </ul>
 </details>
+<details>
+<summary>0.5.0</summary>
+<ul>
+</ul>
+</details>
