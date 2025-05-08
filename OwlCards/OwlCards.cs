@@ -160,12 +160,16 @@ namespace OwlCards
 
 		private bool OwlCardValidation(Player player, CardInfo cardInfo)
 		{
-			if (cardInfo.categories.Contains(OwlCardCategory.modCategory))
+			if (cardInfo.categories.Contains(OwlCardCategory.soulCondition))
+			{
 				if (AOwlCard.conditions.ContainsKey(cardInfo.cardName))
 				{
 					return AOwlCard.conditions[cardInfo.cardName]
 						(Extensions.CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul);
 				}
+				else
+					Log("conditionw without category found for card: " + cardInfo.name);
+			}
 			return true;
 		}
 		private void BuildCards()
@@ -207,6 +211,8 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.BirdOfPrey>();
 			//Damage + small soul
 			CustomCard.BuildCard<Cards.SharpClaws>();
+			//steal soul when touching
+			CustomCard.BuildCard<Cards.SoulStealer>();
 
 
 			if (bCurseActivated)
