@@ -139,7 +139,19 @@ namespace OwlCards.UI
 			}
 
 			soulFill.transform.GetChild(1).GetComponentInChildren<Text>().text = blockDisplayedMsg; 
-			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg; 
+			soulFill.transform.GetChild(2).GetComponentInChildren<Text>().text = fireDisplayMsg;
+
+			Func<string> getHandSizeDiff = () => {
+				if (soulValue == 0)
+					return "<color=#FF2D2D>-2</color>";
+				if (soulValue < 2)
+					return "+0";
+				if (soulValue < 4)
+					return "<color=#0DFF24>+1</color>";
+				return "<color=#0DFF24>+2</color>";
+
+			};
+			soulFill.transform.GetChild(3).GetChild(0).GetComponent<Text>().text = getHandSizeDiff() + " hand size";
 		}
 
 		public void BuildFillUI()
