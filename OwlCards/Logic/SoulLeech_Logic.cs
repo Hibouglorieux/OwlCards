@@ -12,7 +12,7 @@ namespace OwlCards.Logic
 {
 	// perhaps use a HitEffect instead of a DealtDamageEffect
 	[DisallowMultipleComponent]
-	internal class SoulLeech_Logic : DealtDamageEffect
+	internal class SoulLeech_Logic : HitEffect
 	{
 		Player player;
 		Dictionary<int, float> soulLeftToStealThisPoint = new Dictionary<int, float>();
@@ -41,14 +41,15 @@ namespace OwlCards.Logic
 
 				// this might be bad, why not make it per bullet ?
 				// steal some points based on damage / target maxHealth
-				float soulToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
-				soulToSteal = Mathf.Min(soulToSteal, maxAmountToSteal);
+				//float soulToSteal = damage.magnitude / damagedPlayer.data.maxHealth / 5.0f;
+				//soulToSteal = Mathf.Min(soulToSteal, maxAmountToSteal);
+				float soulToSteal = SoulLeech.rerollLeeched;
 
 
 				int[] playerIDs = new int[2] { player.playerID, damagedPlayer.playerID };
 				float[] newSouls = new float[2] {
-					CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul + soulToSteal,
-					CharacterStatModifiersExtension.GetAdditionalData(player.data.stats).Soul - soulToSteal
+					OwlCardsData.GetData(player.playerID).Soul + soulToSteal,
+					OwlCardsData.GetData(damagedPlayer.playerID).Soul - soulToSteal,
 				};
 				OwlCardsData.UpdateSoul(playerIDs, newSouls);
 
