@@ -106,8 +106,7 @@ namespace OwlCards
 								if (CurseHandler.IsPickingCurse)
 									continue;
 
-							OwlCardsData.UpdateSoul(pickrID,
-							CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor);
+							OwlCardsData.RequestUpdateSoul(new int[] { pickrID }, new float[] { -OwlCards.instance.extraPickSoulCost.Value * soulConsumptionFactor });
 
 							var indexField = AccessTools.Field(typeof(CardChoice), "currentlySelectedCard");
                             int selectedCardIndex = (int)indexField.GetValue(CardChoice.instance);
@@ -305,8 +304,7 @@ namespace OwlCards
         /// <param name="cardToPick"></param>
         private void RerollCards(int pickrID, float soulUsed, GameObject cardToPick = null)
         {
-            OwlCardsData.UpdateSoul(pickrID,
-            CharacterStatModifiersExtension.GetAdditionalData(Utils.GetPlayerWithID(pickrID).data.stats).Soul - soulUsed);
+			OwlCardsData.RequestUpdateSoul(new int[] { pickrID }, new float[] { -soulUsed });
 			if (cardToPick)
 				PickCard(cardToPick);
 			else

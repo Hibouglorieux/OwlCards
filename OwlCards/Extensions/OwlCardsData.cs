@@ -4,6 +4,7 @@ using HarmonyLib;
 using UnboundLib.Networking;
 using UnboundLib;
 using Photon.Pun;
+using UnityEngine;
 
 namespace OwlCards.Extensions
 {
@@ -38,31 +39,76 @@ namespace OwlCards.Extensions
 				float newSoulValue = newSoulValues[i];
 
 				OwlCardsData data = GetData(playerID);
-				{
-					int oldDrawValue = DrawNCards.DrawNCards.GetPickerDraws(playerID);
+				data.Soul = newSoulValue;
 
-					Action<int, int> updateHandSizeWithSoulValue = (int bound, int handSizeChange) => {
+				// update hand size if needed
+				if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				{
+					OwlCards.Log("Checking if handsize must be updated");
+					int oldDrawValue = DrawNCards.DrawNCards.GetPickerDraws(playerID);
+					int newDrawValue = oldDrawValue;
+
+					Action<int, int> updateHandSizeWithSoulValue = (int bound, int handSizeChange) =>
+					{
 						if (data.Soul < bound && newSoulValue >= bound)
-							DrawNCards.DrawNCards.SetPickerDraws(playerID, (oldDrawValue += handSizeChange));
+							newDrawValue += handSizeChange;
 						if (data.Soul >= bound && newSoulValue < bound)
-							DrawNCards.DrawNCards.SetPickerDraws(playerID, (oldDrawValue -= handSizeChange));
+							newDrawValue -= handSizeChange;
 					};
 
 					updateHandSizeWithSoulValue(0, 2);
 					updateHandSizeWithSoulValue(2, 1);
 					updateHandSizeWithSoulValue(4, 1);
+
+					newDrawValue = Mathf.Clamp(newDrawValue, 1, 30);
+					if (oldDrawValue != newDrawValue)
+					{
+						OwlCards.Log("updated hand size with old value being: " + oldDrawValue);
+						DrawNCards.DrawNCards.RPCA_SetPickerDraws(playerID, newDrawValue);
+						DrawNCards.DrawNCards.SetPickerDraws(playerID, (newDrawValue));
+						OwlCards.Log("updated hand size with NEW value being: " + newDrawValue);
+					}
 				}
-				data.Soul = newSoulValue;
 			}
 		}
 
 		public static void UpdateSoul(int[] playersIDs, float[] newSoulValues)
 		{
+			if (!(PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient))
+			{
+				OwlCards.Log("UpdateSoul called from client instead of masterClient !");
+				return;
+			}
 			object[] obj = { playersIDs, newSoulValues };
 			UpdateSoul_RPC(playersIDs, newSoulValues);
 			if (!PhotonNetwork.OfflineMode)
 				NetworkingManager.RPC_Others(typeof(OwlCardsData), nameof(UpdateSoul_RPC), obj);
 		}
+
+		// meant to be called by clients to request an update to the master client
+		public static void RequestUpdateSoul(int[] playersIDs, float[] diff)
+		{
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				UpdateSoul(playersIDs, GetUpdatedSoulValueFromDiff(playersIDs, diff));
+			else
+				NetworkingManager.RPC_Others(typeof(OwlCardsData), nameof(RequestUpdateSoul_RPC), new object[] { playersIDs, diff });
+		}
+
+		private static float[] GetUpdatedSoulValueFromDiff(int[] playersIDs, float[] diff)
+		{
+			float[] newSoulValues = new float[playersIDs.Length];
+			for (int i = 0; i < newSoulValues.Length; i++)
+				newSoulValues[i] = GetData(playersIDs[i]).Soul + diff[i];
+			return newSoulValues;
+		}
+
+		[UnboundRPC]
+		private static void RequestUpdateSoul_RPC(int[] playersIDs, float[] diff)
+		{
+			if (!PhotonNetwork.IsMasterClient) return;
+			UpdateSoul(playersIDs, GetUpdatedSoulValueFromDiff(playersIDs, diff));
+		}
+
 		public static void UpdateSoul(int playerID, float newSoulValue)
 		{
 			UpdateSoul(new int[] { playerID }, new float[] { newSoulValue });
@@ -115,7 +161,7 @@ namespace OwlCards.Extensions
 			if (additionalData.Soul != OwlCards.instance.soulOnGameStart.Value)
 			{
 				var soulPropertySetter = AccessTools.PropertySetter(typeof(OwlCardsData), "Soul");
-				soulPropertySetter.Invoke(additionalData, new object[] {OwlCards.instance.soulOnGameStart.Value});
+				soulPropertySetter.Invoke(additionalData, new object[] { OwlCards.instance.soulOnGameStart.Value });
 			}
 
 			var rerollsField = AccessTools.Field(typeof(OwlCardsData), "_rerolls");
