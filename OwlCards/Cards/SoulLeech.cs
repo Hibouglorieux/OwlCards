@@ -1,5 +1,6 @@
 ﻿using OwlCards.Logic;
 using Photon.Pun;
+using RarityBundle;
 using UnboundLib;
 using UnityEngine;
 
@@ -64,15 +65,13 @@ namespace OwlCards.Cards
 			};
 		}
 
-		/*
-			protected override GameObject GetCardArt()
-			{
-				return GetCardArt("C_CARD_NAME");
-			}
-		*/
+		protected override GameObject GetCardArt()
+		{
+			return GetCardArt("C_SoulLeech");
+		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Uncommon;
+			return Rarities.Scarce;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

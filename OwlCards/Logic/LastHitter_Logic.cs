@@ -14,6 +14,8 @@ namespace OwlCards.Logic
 		{
 			if (!selfDamage && damagedPlayer)
 			{
+				// if damage is suppose to kill (here is shield and damage reduction not taken into account..)
+				// then verify next frame (because played isn't dead yet)
 				if (damage.magnitude > damagedPlayer.data.health)
 				{
 					StartCoroutine(nameof(CheckIfPlayerDied), damagedPlayer);

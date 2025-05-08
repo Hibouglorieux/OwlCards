@@ -16,9 +16,7 @@ namespace OwlCards.Cards
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
-			{
 				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul + 1);
-			}
 
 			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
 
@@ -33,6 +31,8 @@ namespace OwlCards.Cards
 		}
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
+			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
+				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player).Soul - 1);
 			//Run when the card is removed from the player
 		}
 
@@ -66,7 +66,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Uncommon;
+			return Rarities.Common;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

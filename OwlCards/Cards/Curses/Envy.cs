@@ -35,9 +35,9 @@ namespace OwlCards.Cards.Curses
 					{
 						float otherPlayerSoul = OwlCardsData.GetData(otherPlayerID).Soul;
 						int cursesToGive = 1;
-						if (otherPlayerSoul > 2)
+						if (otherPlayerSoul >= 2)
 							cursesToGive++;
-						if (otherPlayerSoul > 3.5)
+						if (otherPlayerSoul >= 3)
 							cursesToGive++;
 						OwlCurse.GiveCurse(Utils.GetPlayerWithID(otherPlayerID), cursesToGive);
 					}
@@ -66,22 +66,22 @@ namespace OwlCards.Cards.Curses
                 new CardInfoStat()
                 {
                     positive = true,
-                    stat = "Curse to Foes",
-                    amount = "+1",
+                    stat = "to Foes",
+                    amount = "+1 Curse",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 },
                 new CardInfoStat()
                 {
                     positive = true,
-                    stat = "Curse to Foes with 2 Soul",
-                    amount = "+1",
+                    stat = "to Foes with 2 Soul",
+                    amount = "+1 Curse",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 },
                 new CardInfoStat()
                 {
                     positive = true,
-                    stat = "Curse to Foes with 3.5 Soul",
-                    amount = "+1",
+                    stat = "to Foes with 3 Soul",
+                    amount = "+1 Curse",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 },
                 new CardInfoStat()

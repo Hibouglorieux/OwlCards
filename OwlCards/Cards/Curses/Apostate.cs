@@ -1,25 +1,21 @@
 ﻿using ModdingUtils.Extensions;
-using UnityEngine;
-using Photon.Pun;
 using RarityBundle;
 using RarityLib.Utils;
+using UnityEngine;
+using OwlCards.Dependencies;
 using System.Linq;
+using Photon.Pun;
+using OwlCards.Extensions;
 
-namespace OwlCards.Cards
+namespace OwlCards.Cards.Curses
 {
-    internal class CorruptedPower : AOwlCard
+	internal class Apostate : AOwlCard
 	{
 		public override void SetupCard_child(CardInfo cardInfo, Gun gun, ApplyCardStats cardStats, CharacterStatModifiers statModifiers, Block block)
 		{
-			//active only if at least one epic card is available
-			conditions[GetTitle()] = (float _) => {
-				foreach (CardInfo info in ModdingUtils.Utils.Cards.active)
-				{
-					if (info.rarity == Rarities.Epic)
-						return true;
-				}
-				return false;
-				};
+			conditions[GetTitle()] = (float soul) => { return soul < OwlCards.instance.extraPickSoulCost.Value && soul >= (OwlCards.instance.extraPickSoulCost.Value / 2); };
+			if (!cardInfo.categories.Contains(CurseHandler.CurseCategory))
+				cardInfo.categories = cardInfo.categories.Append(CurseHandler.CurseSpawnerCategory).ToArray();
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.GetAdditionalData().canBeReassigned = false;
@@ -28,15 +24,13 @@ namespace OwlCards.Cards
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
-			{
-				int[] othersIDs = Utils.GetOpponentsPlayersIDs(player.playerID);
-				Reroll.instance.AddReroll(othersIDs);
-			}
+				OwlCardsData.UpdateSoul(player.playerID, OwlCardsData.GetData(player.playerID).Soul - 15);
+			OwlCurse.GiveCurse(player);
 
 			CardInfo randomCard = ModdingUtils.Utils.Cards.instance.GetRandomCardWithCondition(player, gun, gunAmmo, data, health, gravity, block, characterStats,
 				(cardInfo, player, gun, gunAmmo, data, health, gravity, block, characterStats) => {
 					return RarityUtils.GetRarityData(cardInfo.rarity).calculatedRarity
-					<= RarityUtils.GetRarityData(Rarities.Legendary).calculatedRarity;
+					<= RarityUtils.GetRarityData(Rarities.Epic).calculatedRarity;
 				}
 				);
 
@@ -44,7 +38,6 @@ namespace OwlCards.Cards
 			ModdingUtils.Utils.CardBarUtils.instance.ShowAtEndOfPhase(player, randomCard);
 			//Edits values on player when card is selected
 		}
-
 		public override void OnRemoveCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
 		{
 			//Run when the card is removed from the player
@@ -52,13 +45,13 @@ namespace OwlCards.Cards
 
 		protected override string GetTitle()
 		{
-			return "Corrupted Power";
+			return "Apostate";
 		}
 		protected override string GetDescription()
 		{
-			return "Acquire a random " +
-				RarityToColorString(Rarities.Legendary) +
-				" or rarer card";
+			return "You sell your soul for a random " + 
+				RarityToColorString(Rarities.Epic)
+				+" or rarer card";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -67,16 +60,24 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = false,
-					stat = "Pick to foes",
+					stat = "Curse",
 					amount = "+1",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
+				},
+				new CardInfoStat()
+				{
+					positive = false,
+					stat = "Soul",
+					amount = "-15",
+					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
+
 			};
 		}
 
 		protected override GameObject GetCardArt()
 		{
-			return GetCardArt("C_CorruptedPower");
+			return GetCardArt("C_Apostate");
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{

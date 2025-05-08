@@ -170,14 +170,8 @@ namespace OwlCards
 		}
 		private void BuildCards()
 		{
-			// TODO what to do actually...?
-			//CustomCard.BuildCard<Cards.Blahaj>();
-			//CustomCard.BuildCard<Cards.LetheRapide>();
-			//CustomCard.BuildCard<Cards.Lethe>();
-
-			// Debug/Test
-
 #if DEBUG
+			// Debug/Test
 			//CustomCard.BuildCard<Cards.Soul>();
 			//CustomCard.BuildCard<Cards.Soulless>();
 #endif
@@ -205,6 +199,14 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.Pious>();
 			//Use soul to reroll + reduce others hand size
 			CustomCard.BuildCard<Cards.CorruptedFaith>();
+			//Become strong + reduce others' soul
+			CustomCard.BuildCard<Cards.AssertDominance>();
+			//+20 flat soul
+			CustomCard.BuildCard<Cards.Transcendence>();
+			//fast + small soul
+			CustomCard.BuildCard<Cards.BirdOfPrey>();
+			//Damage + small soul
+			CustomCard.BuildCard<Cards.SharpClaws>();
 
 
 			if (bCurseActivated)
@@ -215,7 +217,12 @@ namespace OwlCards
 				CustomCard.BuildCard<Cards.Curses.Burden>(cardInfo => { CurseHandler.RegisterCurse(cardInfo);});
 
 				//curse related cards
+				// give curse to everyone
 				CustomCard.BuildCard<Cards.Curses.Envy>();
+				//sell soul for random epic
+				CustomCard.BuildCard<Cards.Curses.Apostate>();
+				// trade curse for soul
+				CustomCard.BuildCard<Cards.Curses.BadFaith>();
 			}
 			// trade random curse for some soul
 			// todo later with softdependancy of curses

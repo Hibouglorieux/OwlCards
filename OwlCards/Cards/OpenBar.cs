@@ -18,7 +18,7 @@ namespace OwlCards.Cards
 		{
 			if (PhotonNetwork.OfflineMode || PhotonNetwork.IsMasterClient)
 			{
-				int[] othersIDs = Utils.GetOtherPlayersIDs(player.playerID);
+				int[] othersIDs = Utils.GetOpponentsPlayersIDs(player.playerID);
 				float[] newSoulValues = new float[othersIDs.Length];
 				for (int i = 0; i < othersIDs.Length; i++)
 				{
@@ -60,7 +60,7 @@ namespace OwlCards.Cards
 				new CardInfoStat()
 				{
 					positive = false,
-					stat = "Others Soul",
+					stat = "Foes' Soul",
 					amount = "+1",
 					simepleAmount = CardInfoStat.SimpleAmount.notAssigned
 				}
@@ -73,7 +73,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Uncommon;
+			return Rarities.Exotic;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

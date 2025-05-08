@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using UnboundLib;
 using Photon.Pun;
+using RarityBundle;
+using UnityEngine;
 
 namespace OwlCards.Cards
 {
@@ -74,15 +76,13 @@ namespace OwlCards.Cards
 			};
 		}
 
-		/*
-			protected override GameObject GetCardArt()
-			{
-				return GetCardArt("C_CARD_NAME");
-			}
-		*/
+		protected override GameObject GetCardArt()
+		{
+			return GetCardArt("C_LastHitter");
+		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return CardInfo.Rarity.Uncommon;
+			return Rarities.Scarce;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()

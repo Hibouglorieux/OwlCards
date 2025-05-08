@@ -15,6 +15,7 @@ namespace OwlCards.Cards
 			if (!cardInfo.categories.Contains(OwlCardCategory.soulCondition))
 				cardInfo.categories = cardInfo.categories.Append(OwlCardCategory.soulCondition).ToArray();
 			cardInfo.allowMultiple = false;
+			cardInfo.GetAdditionalData().canBeReassigned = false;
 			//Edits values on card itself, which are then applied to the player in `ApplyCardStats`
 		}
 		public override void OnAddCard(Player player, Gun gun, GunAmmo gunAmmo, CharacterData data, HealthHandler health, Gravity gravity, Block block, CharacterStatModifiers characterStats)
@@ -71,7 +72,7 @@ namespace OwlCards.Cards
 		}
 		protected override CardInfo.Rarity GetRarity()
 		{
-			return Rarities.Rare;
+			return Rarities.Exotic;
 		}
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
