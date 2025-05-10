@@ -1,6 +1,6 @@
 {
 	"name": "OwlCards",
-	"version_number": "0.5.0",
+	"version_number": "0.4.1",
 	"website_url": "https://github.com/Hibouglorieux/OwlCards",
 	"description": "Adds a new ressource to reroll cards aswell as some cards.",
 	"dependencies": [

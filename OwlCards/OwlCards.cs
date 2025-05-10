@@ -38,7 +38,7 @@ namespace OwlCards
 	{
 		private const string ModId = "com.HibouGlorieux.Rounds.OwlCards";
 		public const string ModName = "OwlCards";
-		public const string Version = "0.5.0"; // What version are we on (major.minor.patch)?
+		public const string Version = "0.4.1"; // What version are we on (major.minor.patch)?
 
 		public const string ModInitials = "OWL";
 		private const string LogPrefix = ModName + ": ";
@@ -203,7 +203,7 @@ namespace OwlCards
 			CustomCard.BuildCard<Cards.Pious>();
 			//Use soul to reroll + reduce others hand size
 			CustomCard.BuildCard<Cards.CorruptedFaith>();
-			//Become strong + reduce others' soul
+			//Become strong + reduce foes' soul
 			CustomCard.BuildCard<Cards.AssertDominance>();
 			//+20 flat soul
 			CustomCard.BuildCard<Cards.Transcendence>();

@@ -40,7 +40,8 @@
 </ul>
 </details>
 <details>
-<summary>0.5.0</summary>
+<summary>0.4.1</summary>
 <ul>
+<li>Fixed hand size changing with soul value not working properly</li>
 </ul>
 </details>

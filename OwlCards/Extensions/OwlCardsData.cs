@@ -39,6 +39,7 @@ namespace OwlCards.Extensions
 				float newSoulValue = newSoulValues[i];
 
 				OwlCardsData data = GetData(playerID);
+				float oldSoulValue = data.Soul;
 				data.Soul = newSoulValue;
 
 				// update hand size if needed
@@ -50,9 +51,9 @@ namespace OwlCards.Extensions
 
 					Action<int, int> updateHandSizeWithSoulValue = (int bound, int handSizeChange) =>
 					{
-						if (data.Soul < bound && newSoulValue >= bound)
+						if (oldSoulValue < bound && newSoulValue >= bound)
 							newDrawValue += handSizeChange;
-						if (data.Soul >= bound && newSoulValue < bound)
+						if (oldSoulValue >= bound && newSoulValue < bound)
 							newDrawValue -= handSizeChange;
 					};
 
