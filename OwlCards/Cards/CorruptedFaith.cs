@@ -26,7 +26,7 @@ namespace OwlCards.Cards
 				Reroll.instance.Add1Reroll(player.playerID);
 			}
 			foreach (int otherPLayerID in Utils.GetOpponentsPlayersIDs(player.playerID))
-				DrawNCards.DrawNCards.SetPickerDraws(otherPLayerID, DrawNCards.DrawNCards.GetPickerDraws(player.playerID) - 1);
+				DrawNCards.DrawNCards.SetPickerDraws(otherPLayerID, DrawNCards.DrawNCards.GetPickerDraws(otherPLayerID) - 1);
 
 			//Edits values on player when card is selected
 		}
@@ -43,7 +43,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Reroll your cards and cripple your foes";
+			return "Reroll your hand and cripple your foes";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
@@ -77,7 +77,7 @@ namespace OwlCards.Cards
 
 		protected override CardThemeColor.CardThemeColorType GetTheme()
 		{
-			return CardThemeColor.CardThemeColorType.TechWhite;
+			return CardThemeColor.CardThemeColorType.EvilPurple;
 		}
 	}
 }

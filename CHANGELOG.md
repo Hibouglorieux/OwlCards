@@ -45,3 +45,10 @@
 <li>Fixed hand size changing with soul value not working properly</li>
 </ul>
 </details>
+<summary>0.4.2</summary>
+<ul>
+<li>Reworded "reroll cards" into "reroll hand" to avoid confusion</li>
+<li>Added a new card</li>
+<li>fixed a bug on corruptedFaith which wasn't setting the right hand size on foes</li>
+</ul>
+</details>

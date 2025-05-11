@@ -37,7 +37,7 @@ namespace OwlCards.Cards.Curses
 						int cursesToGive = 1;
 						if (otherPlayerSoul >= 2)
 							cursesToGive++;
-						if (otherPlayerSoul >= 3)
+						if (otherPlayerSoul >= 4)
 							cursesToGive++;
 						OwlCurse.GiveCurse(Utils.GetPlayerWithID(otherPlayerID), cursesToGive);
 					}
@@ -80,7 +80,7 @@ namespace OwlCards.Cards.Curses
                 new CardInfoStat()
                 {
                     positive = true,
-                    stat = "to Foes with 3 Soul",
+                    stat = "to Foes with 4 Soul",
                     amount = "+1 Curse",
                     simepleAmount = CardInfoStat.SimpleAmount.notAssigned
                 },
@@ -100,7 +100,7 @@ namespace OwlCards.Cards.Curses
         }
         protected override CardInfo.Rarity GetRarity()
         {
-            return Rarities.Scarce;
+            return Rarities.Uncommon;
         }
 
         protected override CardThemeColor.CardThemeColorType GetTheme()

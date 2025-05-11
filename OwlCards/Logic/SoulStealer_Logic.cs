@@ -64,6 +64,7 @@ namespace OwlCards.Logic
 			{
 				if (player.teamID != owner.teamID)
 				{
+					//TODO keep track and steal 0.15 then 0.10, then cap at 0.05 for balance
 					if ((player.transform.position - owner.transform.position).magnitude <= (SoulStealer.baseRadius * owner.transform.localScale.x))
 						if (CanStealPlayer(player))
 						{
@@ -106,6 +107,15 @@ namespace OwlCards.Logic
 
 			colorEffect = player.gameObject.AddComponent<ReversibleColorEffect>();
 			colorEffect.SetColor(Color.Lerp(new Color(1, 1, 1, 1), colorEffect.GetOriginalColorMax(), 0.0f));
+			GameModeManager.AddHook(GameModeHooks.HookPointEnd, OnPointEnd);
+		}
+
+		private IEnumerator OnPointEnd(IGameModeHandler gm)
+		{
+			effectDurationLeft = -1;
+			ClearModifiers();
+			Destroy(this);
+			yield break;
 		}
 
 		public override void OnUpdate()

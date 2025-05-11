@@ -38,7 +38,7 @@ namespace OwlCards
 	{
 		private const string ModId = "com.HibouGlorieux.Rounds.OwlCards";
 		public const string ModName = "OwlCards";
-		public const string Version = "0.4.1"; // What version are we on (major.minor.patch)?
+		public const string Version = "0.4.2"; // What version are we on (major.minor.patch)?
 
 		public const string ModInitials = "OWL";
 		private const string LogPrefix = ModName + ": ";
@@ -224,6 +224,8 @@ namespace OwlCards
 
 				//curse related cards
 				// give curse to everyone
+				CustomCard.BuildCard<Cards.Curses.Giveaway>();
+				// give curse to everyone 2
 				CustomCard.BuildCard<Cards.Curses.Envy>();
 				//sell soul for random epic
 				CustomCard.BuildCard<Cards.Curses.Apostate>();

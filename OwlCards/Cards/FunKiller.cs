@@ -52,7 +52,7 @@ namespace OwlCards.Cards
 		}
 		protected override string GetDescription()
 		{
-			return "Reroll your cards and drain everyone's soul.";
+			return "Reroll your hand and drain everyone's soul.";
 		}
 		protected override CardInfoStat[] GetStats()
 		{
